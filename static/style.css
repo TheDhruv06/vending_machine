@@ -1,0 +1,1056 @@
+/* ==========================================================================
+   SOILVEDA ORGANICS - VENDING SIMULATOR STYLESHEET
+   Clean, modern, touch-friendly Ayurvedic Kiosk UI
+   ========================================================================== */
+
+:root {
+    --primary: #1e5631;         /* Deep herbal forest green */
+    --primary-light: #2e7d47;
+    --primary-soft: #eaf5ee;
+    --accent-gold: #c8963e;      /* Classical Ayurvedic turmeric/gold */
+    --accent-gold-soft: #fcf6eb;
+    --danger: #d9383a;          /* Safety lockout red */
+    --danger-soft: #fdf2f2;
+    --warning: #e67e22;
+    --text-dark: #1b241d;
+    --text-muted: #5e6d62;
+    --bg-surface: #ffffff;
+    --bg-page: #f4f7f4;
+    --border-color: #dbe4dd;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(30, 86, 49, 0.08);
+    --shadow-lg: 0 16px 40px rgba(30, 86, 49, 0.12);
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-page);
+    color: var(--text-dark);
+    line-height: 1.5;
+    padding: 24px 16px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+
+.kiosk-container {
+    width: 100%;
+    max-width: 980px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.kiosk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary-soft);
+    padding-bottom: 20px;
+}
+
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.brand-logo-badge {
+    font-size: 36px;
+    background: var(--primary-soft);
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--primary-light);
+}
+
+.brand-text h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+}
+
+.brand-text .tagline {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 6px 14px;
+    border-radius: 30px;
+}
+
+.live-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #2ecc71;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #2ecc71;
+}
+
+.badge {
+    background: #ffffff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+/* ==========================================================================
+   PRESETS SECTION
+   ========================================================================== */
+.preset-section {
+    background: var(--accent-gold-soft);
+    border: 1px dashed var(--accent-gold);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preset-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8c6012;
+}
+
+.preset-label small {
+    font-weight: 400;
+    color: #9c7329;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preset-btn {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   STEPPER
+   ========================================================================== */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+    position: relative;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+.step-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.step-item.active .step-circle {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.step-item.active .step-label {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.step-item.completed .step-circle {
+    background: var(--primary-light);
+    border-color: var(--primary-light);
+    color: #ffffff;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border-color);
+    margin: 0 8px -20px 8px;
+}
+
+.step-line.filled {
+    background: var(--primary-light);
+}
+
+/* ==========================================================================
+   STEP CONTENTS
+   ========================================================================== */
+.step-content {
+    display: none;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.25s ease;
+}
+
+.step-content.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.section-title p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Step 1 Forms */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-card {
+    background: #fafcfa;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-card label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.input-with-hint {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.input-with-hint input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.input-with-hint .unit {
+    position: absolute;
+    right: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.form-card select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: inherit;
+    background: #ffffff;
+    font-weight: 600;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.safety-toggles-card {
+    background: #fafcfa;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 18px;
+}
+
+.safety-toggles-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text-dark);
+}
+
+.toggles-row {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Switch toggle styling */
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+}
+
+.switch-container input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.slider {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+    background-color: #cbd5e1;
+    border-radius: 24px;
+    transition: 0.3s;
+    flex-shrink: 0;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.switch-container input:checked + .slider {
+    background-color: var(--danger);
+}
+
+.switch-container input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.switch-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.danger-tag {
+    color: var(--danger);
+    font-size: 12px;
+}
+
+.safety-alert-banner {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.alert-icon {
+    font-size: 22px;
+}
+
+.alert-text strong {
+    color: var(--danger);
+    font-size: 14px;
+}
+
+.alert-text p {
+    font-size: 13px;
+    color: #7a1c1d;
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   STEP 2: PRAKRITI QUESTIONS
+   ========================================================================== */
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.question-box {
+    background: #fafcfa;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.q-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.special-badge {
+    background: var(--accent-gold-soft);
+    color: #8c6012;
+    border: 1px solid var(--accent-gold);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.q-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.option-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-card:hover {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+}
+
+.option-card input[type="radio"] {
+    display: none;
+}
+
+.option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.option-bullet {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.option-card input[type="radio"]:checked + .option-content .option-bullet {
+    border-color: var(--primary);
+    background: var(--primary);
+    box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+.option-card input[type="radio"]:checked ~ .option-content,
+.option-card:has(input[type="radio"]:checked) {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+}
+
+.option-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.option-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.option-badge {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   STEP 3: SYMPTOM MENU (VIKRITI)
+   ========================================================================== */
+.symptom-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.symptom-category-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: #fafcfa;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.category-header {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.symptom-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.symptom-pill input[type="radio"] {
+    display: none;
+}
+
+.pill-body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.symptom-pill:hover .pill-body {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+}
+
+.symptom-pill input[type="radio"]:checked + .pill-body {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(30, 86, 49, 0.2);
+}
+
+/* ==========================================================================
+   STEP 4: PRESCRIPTION & RESULTS VIEW
+   ========================================================================== */
+.diagnosis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+}
+
+.prakriti-card {
+    background: #fafcfa;
+    border-left: 4px solid var(--primary);
+}
+
+.agni-card {
+    background: #fffdf9;
+    border-left: 4px solid var(--accent-gold);
+}
+
+.card-tag {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.summary-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.prakriti-code-badge {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 3px 10px;
+    background: var(--primary);
+    color: #ffffff;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.score-meters {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.meter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.meter-row span:first-child {
+    width: 60px;
+}
+
+.meter-bar {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.vata-fill { background-color: #3b82f6; }
+.pitta-fill { background-color: #ef4444; }
+.kapha-fill { background-color: #10b981; }
+
+.card-explanation {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.symptom-tag-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.tag-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.symptom-pill-display {
+    background: var(--accent-gold-soft);
+    border: 1px solid var(--accent-gold);
+    color: #8c6012;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Big Tea Prescription Card */
+.tea-prescription-card {
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    padding: 26px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.prescription-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+}
+
+.tea-code-pill {
+    background: var(--accent-gold);
+    color: #ffffff;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.tea-identity h3 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.tea-category-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.cup-graphic {
+    font-size: 54px;
+    background: var(--primary-soft);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prescription-details {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-row strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.detail-row p {
+    font-size: 14px;
+    color: #2d3748;
+}
+
+.ingredients-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.ingredient-badge {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border: 1px solid var(--primary-light);
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Machine Specs Box */
+.vending-specs-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-top: 6px;
+}
+
+.specs-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.spec-item .label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.spec-item .val {
+    font-size: 13px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+/* Dispense Actions */
+.dispense-action-area {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.btn-dispense {
+    flex: 2;
+    background: #27ae60;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 6px 18px rgba(39, 174, 96, 0.35);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-dispense:hover {
+    background: #219653;
+    transform: translateY(-2px);
+}
+
+.dispense-animation {
+    background: var(--primary-soft);
+    border: 1px dashed var(--primary);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(30, 86, 49, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.dispense-status-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.dispense-status-text strong {
+    font-size: 13px;
+    color: var(--primary);
+}
+
+.dispense-status-text span {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   SAFETY LOCKOUT MODAL / VIEW
+   ========================================================================== */
+.lockout-card {
+    background: var(--danger-soft);
+    border: 2px solid var(--danger);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.lockout-icon {
+    font-size: 54px;
+}
+
+.lockout-card h2 {
+    color: var(--danger);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.lockout-reason {
+    background: #ffffff;
+    border: 1px solid #f8b4b4;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    color: #7a1c1d;
+    font-weight: 600;
+    font-size: 14px;
+    max-width: 650px;
+}
+
+.lockout-guidance {
+    font-size: 13px;
+    color: #555;
+    max-width: 600px;
+}
+
+/* ==========================================================================
+   COMMON BUTTONS & UTILITIES
+   ========================================================================== */
+.step-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-light);
+}
+
+.btn-secondary {
+    background: #edf2f7;
+    color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.btn-cta {
+    background: var(--accent-gold);
+    color: #ffffff;
+}
+
+.btn-cta:hover {
+    background: #b5832e;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .kiosk-container {
+        padding: 20px 16px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .diagnosis-grid {
+        grid-template-columns: 1fr;
+    }
+    .stepper {
+        overflow-x: auto;
+    }
+}
+

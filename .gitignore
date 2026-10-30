@@ -1,0 +1,19 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Vercel deployment cache
+.vercel/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+

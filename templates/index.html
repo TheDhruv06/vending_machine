@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soilveda Organics | AI-Driven Ayurvedic Vending Machine</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Google Fonts for clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- MAIN KIOSK CONTAINER -->
+    <div class="kiosk-container">
+
+        <!-- KIOSK HEADER -->
+        <header class="kiosk-header">
+            <div class="brand-group">
+                <div class="brand-logo-badge">🌱</div>
+                <div class="brand-text">
+                    <h1>Soilveda Organics</h1>
+                    <p class="tagline">Automated Kashaya & Herbal Tea Vending Machine • Model Simulator</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="live-indicator"></span>
+                <span>System Ready</span>
+                <span class="badge">Ayurveda Engine v1.0</span>
+            </div>
+        </header>
+
+        <!-- QUICK TEST PRESETS BAR -->
+        <section class="preset-section">
+            <div class="preset-label">
+                <span>⚡ Quick Test Presets:</span>
+                <small>(One-click test common patient profiles & safety gates)</small>
+            </div>
+            <div class="preset-buttons">
+                {% for key, preset in presets.items() %}
+                <button type="button" class="preset-btn" onclick="loadPreset('{{ key }}')" title="{{ preset.description }}">
+                    {{ preset.name }}
+                </button>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- STEP PROGRESS BAR -->
+        <div class="stepper">
+            <div class="step-item active" id="step-nav-1" onclick="goToStep(1)">
+                <div class="step-circle">1</div>
+                <div class="step-label">Screening & Safety</div>
+            </div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step-item" id="step-nav-2" onclick="goToStep(2)">
+                <div class="step-circle">2</div>
+                <div class="step-label">Prakriti & Agni</div>
+            </div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step-item" id="step-nav-3" onclick="goToStep(3)">
+                <div class="step-circle">3</div>
+                <div class="step-label">Acute Symptom</div>
+            </div>
+            <div class="step-line" id="line-3"></div>
+            <div class="step-item" id="step-nav-4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Prescription & Dispense</div>
+            </div>
+        </div>
+
+        <!-- MAIN INTERACTIVE FORM -->
+        <form id="consultationForm" onsubmit="event.preventDefault(); submitConsultation();">
+
+            <!-- ========================================================= -->
+            <!-- STEP 1: BASIC SCREENING & SAFETY GATES                     -->
+            <!-- ========================================================= -->
+            <div class="step-content active" id="step-1">
+                <div class="section-title">
+                    <h2>Phase 1: Basic Screening & Safety Verification</h2>
+                    <p>Enter patient details. Safety gates protect high-risk individuals from contraindicated herbs.</p>
+                </div>
+
+                <div class="form-grid">
+                    <!-- Age Input -->
+                    <div class="form-card">
+                        <label for="userAge">Age of Patient</label>
+                        <div class="input-with-hint">
+                            <input type="number" id="userAge" min="1" max="110" value="28" required>
+                            <span class="unit">years</span>
+                        </div>
+                        <small class="field-hint">Ages &lt; 5 require direct pediatric prescription.</small>
+                    </div>
+
+                    <!-- Gender Input -->
+                    <div class="form-card">
+                        <label for="userGender">Gender</label>
+                        <select id="userGender" onchange="toggleGenderFields()">
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <small class="field-hint">Used for physiological baseline screening.</small>
+                    </div>
+                </div>
+
+                <!-- Female-specific safety toggles (Pregnancy & Lactation) -->
+                <div class="safety-toggles-card" id="femaleSafetyCard">
+                    <h3>Special Physiological Considerations</h3>
+                    <div class="toggles-row">
+                        <label class="switch-container">
+                            <input type="checkbox" id="isPregnant" onchange="checkRealtimeSafety()">
+                            <span class="slider"></span>
+                            <span class="switch-label">Currently Pregnant? <strong class="danger-tag">(Safety Gate Lockout)</strong></span>
+                        </label>
+
+                        <label class="switch-container">
+                            <input type="checkbox" id="isLactating">
+                            <span class="slider"></span>
+                            <span class="switch-label">Currently Lactating / Nursing?</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Realtime Safety Warning Banner -->
+                <div class="safety-alert-banner hidden" id="realtimeSafetyAlert">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-text">
+                        <strong id="safetyAlertTitle">Safety Gate Warning:</strong>
+                        <p id="safetyAlertMsg"></p>
+                    </div>
+                </div>
+
+                <div class="step-actions">
+                    <div></div>
+                    <button type="button" class="btn btn-primary" onclick="validateStep1AndProceed()">
+                        Continue to Prakriti Assessment &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- STEP 2: PRAKRITI & AGNI ASSESSMENT (7 QUESTIONS)          -->
+            <!-- ========================================================= -->
+            <div class="step-content" id="step-2">
+                <div class="section-title">
+                    <h2>Phase 2: Prakriti (Constitution) & Agni (Digestive Fire)</h2>
+                    <p>Select the option that best reflects the patient's general, baseline tendency.</p>
+                </div>
+
+                <div class="questions-list">
+                    {% for q in questions %}
+                    <div class="question-box" data-qid="{{ q.id }}">
+                        <div class="question-header">
+                            <span class="q-title">{{ q.title }}</span>
+                            {% if q.id == 'digestion_agni' %}
+                            <span class="special-badge">⭐ Agni Evaluator</span>
+                            {% endif %}
+                        </div>
+                        {% if q.description %}
+                        <p class="q-desc">{{ q.description }}</p>
+                        {% endif %}
+
+                        <div class="options-grid">
+                            {% for opt in q.options %}
+                            <label class="option-card">
+                                <input type="radio" name="{{ q.id }}" value="{{ loop.index0 }}" {% if loop.first %}checked{% endif %}>
+                                <div class="option-content">
+                                    <span class="option-bullet"></span>
+                                    <div class="option-text-group">
+                                        <div class="option-text">{{ opt.label }}</div>
+                                        <div class="option-badge">
+                                            {% if opt.dosha == 'V' %}Vata (V){% elif opt.dosha == 'P' %}Pitta (P){% elif opt.dosha == 'K' %}Kapha (K){% else %}Balanced (VPK){% endif %}
+                                            {% if opt.agni %} • {{ opt.agni }}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goToStep(1)">&larr; Back to Screening</button>
+                    <button type="button" class="btn btn-primary" onclick="goToStep(3)">Continue to Symptom Selection &rarr;</button>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- STEP 3: THE 10-SECOND SYMPTOM MENU (VIKRITI)              -->
+            <!-- ========================================================= -->
+            <div class="step-content" id="step-3">
+                <div class="section-title">
+                    <h2>Phase 3: The 10-Second Symptom Menu (Vikriti)</h2>
+                    <p>Tap the primary current discomfort or health goal to be addressed today.</p>
+                </div>
+
+                <div class="symptom-categories">
+                    {% for category, items in symptoms.items() %}
+                    {% set cat_loop = loop %}
+                    <div class="symptom-category-card">
+                        <div class="category-header">
+                            {% if category == 'Stomach' %}🫄 Gastrointestinal (Stomach)
+                            {% elif category == 'Pain' %}⚡ Musculoskeletal & Pain
+                            {% else %}🫁 Respiratory & Immunity (Chest & Cold){% endif %}
+                        </div>
+                        <div class="symptom-options">
+                            {% for item in items %}
+                            <label class="symptom-pill">
+                                <input type="radio" name="selected_symptom" value="{{ item }}" {% if cat_loop.first and loop.first %}checked{% endif %}>
+                                <span class="pill-body">
+                                    <span class="pill-icon">🍃</span>
+                                    <span class="pill-label">{{ item }}</span>
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goToStep(2)">&larr; Back to Prakriti</button>
+                    <button type="button" class="btn btn-primary btn-cta" onclick="submitConsultation()">
+                        ✨ Run Model & Generate Recommendation &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- STEP 4: DIAGNOSTIC REPORT & TEA PRESCRIPTION              -->
+            <!-- ========================================================= -->
+            <div class="step-content" id="step-4">
+                
+                <!-- SAFETY LOCKOUT VIEW (Displayed if safety gate fails) -->
+                <div id="safetyLockoutContainer" class="hidden">
+                    <div class="lockout-card">
+                        <div class="lockout-icon">🚫</div>
+                        <h2>Machine Locked for Patient Safety</h2>
+                        <div class="lockout-reason" id="lockoutReasonText"></div>
+                        <p class="lockout-guidance">
+                            Ayurvedic botanical extracts contain active alkaloids and essential principles that require clinical monitoring in this condition. Please proceed to the attending physician or front health desk.
+                        </p>
+                        <div class="lockout-actions">
+                            <button type="button" class="btn btn-primary" onclick="resetToStep1()">
+                                Start New Consultation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUCCESS PRESCRIPTION VIEW (Displayed when approved) -->
+                <div id="prescriptionResultContainer" class="hidden">
+                    <div class="result-header">
+                        <div class="dispense-badge">✅ Clinical Evaluation Complete</div>
+                        <h2>Ayurvedic Diagnosis & Dispense Order</h2>
+                    </div>
+
+                    <!-- DIAGNOSTIC SUMMARY CARDS -->
+                    <div class="diagnosis-grid">
+                        
+                        <!-- Dominant Prakriti Card -->
+                        <div class="summary-card prakriti-card">
+                            <div class="card-tag">Constitution (Prakriti)</div>
+                            <h3 id="resPrakritiLabel">-</h3>
+                            <div class="prakriti-code-badge" id="resPrakritiCode">VP</div>
+                            
+                            <!-- Dosha Scores Visual Meter -->
+                            <div class="score-meters">
+                                <div class="meter-row">
+                                    <span>Vata (V):</span>
+                                    <div class="meter-bar"><div class="meter-fill vata-fill" id="meterV"></div></div>
+                                    <span id="scoreValV">0</span>
+                                </div>
+                                <div class="meter-row">
+                                    <span>Pitta (P):</span>
+                                    <div class="meter-bar"><div class="meter-fill pitta-fill" id="meterP"></div></div>
+                                    <span id="scoreValP">0</span>
+                                </div>
+                                <div class="meter-row">
+                                    <span>Kapha (K):</span>
+                                    <div class="meter-bar"><div class="meter-fill kapha-fill" id="meterK"></div></div>
+                                    <span id="scoreValK">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agni (Digestive Fire) Card -->
+                        <div class="summary-card agni-card">
+                            <div class="card-tag">Digestive Fire (Agni)</div>
+                            <h3 id="resAgniType">-</h3>
+                            <p class="card-explanation" id="resAgniDesc">-</p>
+                            <div class="symptom-tag-container">
+                                <span class="tag-title">Acute Symptom:</span>
+                                <span class="symptom-pill-display" id="resSymptomName">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECOMMENDED TEA PRESCRIPTION CARD -->
+                    <div class="tea-prescription-card">
+                        <div class="prescription-top">
+                            <div class="tea-identity">
+                                <span class="tea-code-pill" id="resTeaCode">Tea A</span>
+                                <h3 id="resTeaName">Lemongrass Sip</h3>
+                                <p class="tea-category-sub" id="resTeaCategory">-</p>
+                            </div>
+                            <div class="cup-graphic">🍵</div>
+                        </div>
+
+                        <div class="prescription-details">
+                            <div class="detail-row">
+                                <strong>Herbal Ingredients:</strong>
+                                <div class="ingredients-list" id="resIngredientsList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+
+                            <div class="detail-row">
+                                <strong>Therapeutic Action:</strong>
+                                <p id="resClinicalAction">-</p>
+                            </div>
+
+                            <div class="detail-row">
+                                <strong>Primary Indication:</strong>
+                                <p id="resIndication">-</p>
+                            </div>
+
+                            <!-- Vending Machine Specs (from PRD) -->
+                            <div class="vending-specs-box">
+                                <div class="specs-title">⚙️ Machine Preparation & Vending Specifications:</div>
+                                <div class="specs-grid">
+                                    <div class="spec-item">
+                                        <span class="label">Ratio:</span>
+                                        <span class="val" id="specRatio">1 Part : 16 Parts Water</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="label">Boiler Cycle:</span>
+                                        <span class="val" id="specBoil">Boiled down to 1/4th volume</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="label">Serving Temp:</span>
+                                        <span class="val" id="specTemp">Warm (55°C - 65°C)</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="label">Serving Size:</span>
+                                        <span class="val" id="specVol">100 - 150 ml</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SIMULATED DISPENSE ACTION -->
+                        <div class="dispense-action-area">
+                            <button type="button" class="btn btn-dispense" id="dispenseBtn" onclick="simulateDispense()">
+                                🚀 Trigger Machine Vending Dispense
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetToStep1()">
+                                🔄 Test Another Consultation
+                            </button>
+                        </div>
+
+                        <!-- Dispense Animation Feedback -->
+                        <div class="dispense-animation hidden" id="dispenseAnimation">
+                            <div class="spinner"></div>
+                            <div class="dispense-status-text">
+                                <strong>Dispensing from Heated Storage Reservoir...</strong>
+                                <span>Kashaya filtration and valve release in progress. Enjoy warm!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- SCRIPT -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

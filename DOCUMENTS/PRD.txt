@@ -1,0 +1,23 @@
+We do not need a vending machine for serving tea..
+
+We can use the regular vending machine for that.
+ 
+Let's not even complex the machine by adding tea amd kasaya in to one with in this 15 days time.
+
+So as we discussed.lets take a vending machine.. change the boiling program to boils the kasaya powder n water mix to 1/4 th.
+
+Let's say we boil 20cups in one rotation it will vending 5 cups of kasaya in 20 mins.
+
+These 5 cups can be sent to a storage jar from where we will connect it to the vending line.
+
+Similarly for two types of kasaya recipe can be served by a regular vending machine creating a 5 to 10 cup storage jar.
+
+We can create the storage jar for 10 cups 20 cups what ever we have to run the boiler that many times to generate this volume.
+
+Now we have to chk the volume of the boiler in the regular vending machine..and find workout how many runs will fill the storage jar.
+
+Wen ever the use selects the kasaya the respective kasaya storage jar will vend a cup.
+
+I hope I am clear.
+
+To add tea n kasaya in one machine we don't need the storage only we need to ass powder jar to the boiler n boiler to vending line..the controller can be separate n  simpler to take care of it .
