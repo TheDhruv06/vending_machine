@@ -174,6 +174,9 @@ PRESET_PROFILES = {
 
 
 @app.route("/")
+@app.route("/api/index")
+@app.route("/api/index.py")
+@app.route("/api")
 def index():
     """Renders the main simulation kiosk interface."""
     return render_template(
