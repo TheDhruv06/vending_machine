@@ -173,28 +173,18 @@ PRESET_PROFILES = {
 }
 
 
-@app.route("/api/debug")
-def debug_environ():
-    """Debug endpoint to inspect WSGI environment variables on Vercel."""
-    env = {k: str(v) for k, v in request.environ.items() if isinstance(v, (str, int, float))}
-    return jsonify(env)
-
-
 @app.route("/")
 @app.route("/api/index")
 @app.route("/api/index.py")
 @app.route("/api")
 def index():
     """Renders the main simulation kiosk interface."""
-    # Debug header inspection
-    env_keys = ",".join(sorted(request.environ.keys()))
     return render_template(
         "index.html",
         questions=PRAKRITI_QUESTIONS,
         symptoms=SYMPTOMS_CATALOG,
         teas=TEA_CATALOG,
-        presets=PRESET_PROFILES,
-        debug_keys=env_keys
+        presets=PRESET_PROFILES
     )
 
 
