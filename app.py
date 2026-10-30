@@ -186,12 +186,15 @@ def debug_environ():
 @app.route("/api")
 def index():
     """Renders the main simulation kiosk interface."""
+    # Debug header inspection
+    env_keys = ",".join(sorted(request.environ.keys()))
     return render_template(
         "index.html",
         questions=PRAKRITI_QUESTIONS,
         symptoms=SYMPTOMS_CATALOG,
         teas=TEA_CATALOG,
-        presets=PRESET_PROFILES
+        presets=PRESET_PROFILES,
+        debug_keys=env_keys
     )
 
 
