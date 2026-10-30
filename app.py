@@ -173,6 +173,13 @@ PRESET_PROFILES = {
 }
 
 
+@app.route("/api/debug")
+def debug_environ():
+    """Debug endpoint to inspect WSGI environment variables on Vercel."""
+    env = {k: str(v) for k, v in request.environ.items() if isinstance(v, (str, int, float))}
+    return jsonify(env)
+
+
 @app.route("/")
 @app.route("/api/index")
 @app.route("/api/index.py")
