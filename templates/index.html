@@ -69,17 +69,80 @@
                 </button>
 
                 <!-- OPTION 3: CLASSICAL KASHAYA -->
-                <button type="button" class="kiosk-choice-card" onclick="startDirectDispense('Classical Kashaya', 'Traditional Ayush Kwath Decoction', 'Authentic Ayurvedic decoction boiled down to 1/4th volume to extract deep rejuvenative immunity botanicals.', ['Holy Basil (Tulsi)', 'Dry Ginger (Sunthi)', 'Cinnamon (Dalchini)', 'Black Pepper (Krishna Marich)'])">
+                <button type="button" class="kiosk-choice-card" onclick="openKashayaMenu()">
                     <div class="choice-icon-wrap">
                         <span class="choice-icon">🍵</span>
                     </div>
                     <div class="choice-text">
-                        <span class="choice-tag">Standard Decoction</span>
+                        <span class="choice-tag">Standard Cartridge Decoction</span>
                         <h3>Classical Kashaya</h3>
-                        <p>Classical Ayurvedic herbal decoction prepared according to traditional Kwatha principles for total vitality.</p>
+                        <p>Choose from three classical Ayurvedic medicinal formulations: Kashaya A, Kashaya B, or Kashaya C.</p>
                     </div>
                     <div class="choice-arrow">&rarr;</div>
                 </button>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SCREEN: KASHAYA FORMULATION SELECTION (KASHAYA A, B, C)           -->
+        <!-- ================================================================= -->
+        <section id="screen-kashaya-menu" class="screen">
+            <div class="screen-header">
+                <span class="step-indicator">Classical Decoction Menu</span>
+                <h2>Select Your Kashaya Formulation</h2>
+                <p>Choose from our standardized, cartridge-based classical Ayurvedic Kashayas:</p>
+            </div>
+
+            <div class="kashaya-cards-grid">
+                <!-- KASHAYA A -->
+                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation A', 'Digestive & Carminative Kwath (Vata Balance)', 'Authentic carminative formulation boiled down to 1/4th volume to expel abdominal gas, reduce spasmodic gut cramps, and ease body stiffness.', ['Lemongrass', 'Dry Ginger (Sunthi)', 'Ajwain', 'Black Pepper'])">
+                    <div class="kashaya-card-top">
+                        <span class="cartridge-badge">Cartridge 1</span>
+                        <span class="kashaya-cup-icon">🍵</span>
+                    </div>
+                    <h3>Kashaya A</h3>
+                    <span class="kashaya-tagline">Digestive & Carminative Kwath</span>
+                    <p class="kashaya-desc">Pacifies Vata. Calms gut bloating, eases digestive spasms, and relieves morning body stiffness.</p>
+                    <div class="kashaya-ingredients">
+                        <strong>Key Herbs:</strong> Lemongrass, Dry Ginger, Ajwain, Black Pepper
+                    </div>
+                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya A &rarr;</button>
+                </div>
+
+                <!-- KASHAYA B -->
+                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation B', 'Cooling & Cardiotonic Kwath (Pitta Balance)', 'Classical cooling and cardioprotective formulation to neutralize internal heat, soothe acidity, and support vascular inflammation.', ['Arjun Bark (Terminalia arjuna)', 'Rose Petals', 'Cardamom', 'Licorice'])">
+                    <div class="kashaya-card-top">
+                        <span class="cartridge-badge">Cartridge 2</span>
+                        <span class="kashaya-cup-icon">🍵</span>
+                    </div>
+                    <h3>Kashaya B</h3>
+                    <span class="kashaya-tagline">Cooling & Cardiotonic Kwath</span>
+                    <p class="kashaya-desc">Pacifies Pitta. Neutralizes hyperacidity, relieves burning sensations, and promotes heart vitality.</p>
+                    <div class="kashaya-ingredients">
+                        <strong>Key Herbs:</strong> Arjun Bark, Rose Petals, Cardamom, Licorice
+                    </div>
+                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya B &rarr;</button>
+                </div>
+
+                <!-- KASHAYA C -->
+                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation C', 'Traditional Ayush Kwath (Kapha & Immunity)', 'Potent classical immunity decoction boiled down to 1/4th volume to strengthen respiratory defense, liquefy congestion, and build vitality.', ['Holy Basil (Tulsi)', 'Dry Ginger (Sunthi)', 'Cinnamon (Dalchini)', 'Black Pepper (Krishna Marich)'])">
+                    <div class="kashaya-card-top">
+                        <span class="cartridge-badge">Cartridge 3</span>
+                        <span class="kashaya-cup-icon">🍵</span>
+                    </div>
+                    <h3>Kashaya C</h3>
+                    <span class="kashaya-tagline">Traditional Ayush Kwath / Immunity</span>
+                    <p class="kashaya-desc">Pacifies Kapha. Clears chest congestion, relieves cough/cold, and boosts vital immunity (Ojas).</p>
+                    <div class="kashaya-ingredients">
+                        <strong>Key Herbs:</strong> Tulsi (Holy Basil), Sunthi, Dalchini, Black Pepper
+                    </div>
+                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya C &rarr;</button>
+                </div>
+            </div>
+
+            <div class="screen-footer">
+                <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-welcome')">&larr; Back to Home</button>
+                <div></div>
             </div>
         </section>
 

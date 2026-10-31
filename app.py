@@ -10,6 +10,9 @@ Ayurvedic Prakriti, Agni, and Tea Recommendation Model.
 import os
 from flask import Flask, render_template, request, jsonify
 from ayurveda_engine import (
+    SET_1_CORE_QUESTIONS,
+    SET_2_QUESTION_POOL,
+    ALL_QUESTIONS_MAP,
     PRAKRITI_QUESTIONS,
     SYMPTOMS_CATALOG,
     TEA_CATALOG,
@@ -189,6 +192,8 @@ def index():
 def get_config():
     """Returns configuration metadata for client interfaces."""
     return jsonify({
+        "set1_core_questions": SET_1_CORE_QUESTIONS,
+        "set2_question_pool": SET_2_QUESTION_POOL,
         "questions": PRAKRITI_QUESTIONS,
         "symptoms": SYMPTOMS_CATALOG,
         "teas": TEA_CATALOG,

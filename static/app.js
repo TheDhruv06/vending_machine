@@ -1,25 +1,38 @@
 /**
  * ======================================================================================
- * SOILVEDA ORGANICS - KIOSK CONTROLLER (6-SCREEN MULTI-PAGE FLOW)
+ * SOILVEDA ORGANICS - KIOSK CONTROLLER (MULTI-SCREEN & DYNAMIC 7-QUESTION SYSTEM)
  * ======================================================================================
- * Manages screen routing, safety checks, clean questionnaire rendering,
- * Ayurvedic engine API evaluation, and animated drink dispensing with lifestyle tips.
+ * Features:
+ * 1. Screen navigation controller
+ * 2. Dedicated Kashaya Selection Menu (Kashaya A, B, and C)
+ * 3. 7-Question Engine:
+ *    - Set 1: 4 Core Questions (Body, Skin, Digestion/Agni, Sleep) with order randomized
+ *    - Set 2: 3 Dynamic Questions chosen at random from the 9-question pool (Q5 - Q13 in docx)
+ *    - All questions displayed in clean, everyday language without dosha jargon
+ * 4. Real-time safety gates (Pregnancy and Age < 5 lockout)
+ * 5. Full API evaluation with dominant Prakriti, Agni state, and recommended tea
+ * 6. Animated preparing & dispensing cup with rotating daily Ayurvedic wellness tips
  * ======================================================================================
  */
 
-// State variables
+// State tracking
 let currentScreenId = 'screen-welcome';
+let activeConsultationQuestions = [];
 let latestConsultationResult = null;
 let currentDispensingDrink = null;
 let dispenseInterval = null;
 let tipRotationInterval = null;
 let activeTipIndex = 0;
 
-// Clean 7 Questions (Everyday language without technical dosha/agni abbreviations)
-const CLEAN_QUESTIONS = [
+// ======================================================================================
+// QUESTION BANK: SET 1 (CORE 4) & SET 2 (POOL OF 9 QUESTIONS FROM Q5 TO Q13)
+// ======================================================================================
+
+// SET 1: Always included for every user, but its order is randomized each time
+const SET_1_CORE_QUESTIONS = [
     {
         id: "body_frame",
-        number: 1,
+        title: "Body Build & Frame",
         question: "How would you describe your natural body build and frame?",
         options: [
             { text: "Slender, light, or lean build; difficulty gaining weight", val: 0 },
@@ -29,7 +42,7 @@ const CLEAN_QUESTIONS = [
     },
     {
         id: "skin_texture",
-        number: 2,
+        title: "Skin Feel & Texture",
         question: "How does your skin usually look and feel?",
         options: [
             { text: "Dry, rough, or cool to touch; tends to chap in dry weather", val: 0 },
@@ -39,7 +52,7 @@ const CLEAN_QUESTIONS = [
     },
     {
         id: "digestion_agni",
-        number: 3,
+        title: "Appetite & Digestion",
         question: "How is your daily appetite and digestive comfort?",
         options: [
             { text: "Irregular appetite; prone to gas, bloating, or variable hunger", val: 0 },
@@ -50,27 +63,31 @@ const CLEAN_QUESTIONS = [
     },
     {
         id: "sleep_pattern",
-        number: 4,
+        title: "Sleep Habits",
         question: "How do you typically sleep through the night?",
         options: [
             { text: "Light or interrupted sleep; wake up easily with an active mind", val: 0 },
             { text: "Moderate sound sleep (6–7 hours); wake up feeling refreshed", val: 1 },
             { text: "Deep, heavy sleep (8+ hours); tend to feel slow or groggy in morning", val: 2 }
         ]
-    },
+    }
+];
+
+// SET 2: Pool of 9 questions (Q5 - Q13 in docx). Exactly 3 are selected at random for each new user
+const SET_2_QUESTION_POOL = [
     {
         id: "temperament",
-        number: 5,
+        title: "Mind Under Pressure (Docx Q5)",
         question: "How do you generally respond to sudden pressure or stress?",
         options: [
             { text: "Tend to feel anxious, restless, or quick to worry", val: 0 },
-            { text: "Tend to feel irritable, impatient, or fiercely goal-driven", val: 1 },
-            { text: "Tend to stay calm, relaxed, patient, and slow to get upset", val: 2 }
+            { text: "Tend to feel irritable, impatient, or intensely focused", val: 1 },
+            { text: "Tend to stay calm, relaxed, patient, and slow to react", val: 2 }
         ]
     },
     {
         id: "energy_stamina",
-        number: 6,
+        title: "Daily Energy & Stamina (Docx Q6)",
         question: "How would you describe your everyday physical energy and stamina?",
         options: [
             { text: "Comes in variable bursts; tire quickly and recharge with rest", val: 0 },
@@ -80,29 +97,89 @@ const CLEAN_QUESTIONS = [
     },
     {
         id: "sweating_heat",
-        number: 7,
+        title: "Weather & Temperature Sensitivity (Docx Q7)",
         question: "How sensitive are you to temperature and changing weather?",
         options: [
-            { text: "Dislike cold and drafty winds; feel chilly easily", val: 0 },
-            { text: "Dislike heat and direct sun; sweat easily and feel hot quickly", val: 1 },
-            { text: "Dislike cold, wet, or rainy weather; comfortable in warm dry air", val: 2 }
+            { text: "Minimal sweating; feel chilly easily and dislike cold/windy weather", val: 0 },
+            { text: "Sweat easily and profusely; dislike heat and direct sun", val: 1 },
+            { text: "Sweat moderately with exertion; dislike cold, damp, or rainy weather", val: 2 }
+        ]
+    },
+    {
+        id: "morning_feeling",
+        title: "Morning Feeling (Docx Q8 / Part 2 Q1)",
+        question: "What is your usual morning feeling when you wake up?",
+        options: [
+            { text: "Energetic but sometimes restless or hurried", val: 0 },
+            { text: "Active, motivated, and ready to start tasks immediately", val: 1 },
+            { text: "Slow to wake up, prefers a relaxed pace, steady afterward", val: 2 }
+        ]
+    },
+    {
+        id: "eating_speed",
+        title: "Eating Speed (Docx Q9 / Part 2 Q2)",
+        question: "What is your usual eating speed during meals?",
+        options: [
+            { text: "Fast, hurried, and sometimes irregular", val: 0 },
+            { text: "Moderate, focused, and steady pace", val: 1 },
+            { text: "Slow, relaxed, and deliberate pace", val: 2 }
+        ]
+    },
+    {
+        id: "body_movement",
+        title: "Body Movement Pace (Docx Q10 / Part 2 Q3)",
+        question: "How would you describe your general body movements and walking pace?",
+        options: [
+            { text: "Fast movements; talk, walk, and gesture quickly", val: 0 },
+            { text: "Moderate, purposeful, and coordinated movements", val: 1 },
+            { text: "Slow, calm, graceful, and steady movements", val: 2 }
+        ]
+    },
+    {
+        id: "physical_stamina",
+        title: "Exertion & Physical Stamina (Docx Q11 / Part 2 Q4)",
+        question: "How does your body hold up during sustained physical exertion?",
+        options: [
+            { text: "Gets tired or fatigued quickly after exertion", val: 0 },
+            { text: "Moderate to strong stamina; determined and focused", val: 1 },
+            { text: "High endurance and sustained stamina without feeling drained", val: 2 }
+        ]
+    },
+    {
+        id: "hunger_pattern",
+        title: "Daily Hunger Pattern (Docx Q12 / Part 2 Q5)",
+        question: "How does your hunger develop throughout the day?",
+        options: [
+            { text: "Hunger varies unpredictably throughout the day", val: 0 },
+            { text: "Feels hungry at sharp, regular, and predictable intervals", val: 1 },
+            { text: "Can comfortably delay or skip meals without distress", val: 2 }
+        ]
+    },
+    {
+        id: "memory_retention",
+        title: "Learning & Memory Retention (Docx Q13 / Part 2 Q6)",
+        question: "How do you naturally absorb and recall new information?",
+        options: [
+            { text: "Learns quickly but may forget quickly if not reinforced", val: 0 },
+            { text: "Has sharp, clear, and well-organized memory", val: 1 },
+            { text: "Learns gradually and deliberately, but retains for a very long time", val: 2 }
         ]
     }
 ];
 
-// Daily Ayurvedic Lifestyle Tips to show while preparing drink
+// Daily Ayurvedic Lifestyle Tips for the Dispensing Screen
 const WELLNESS_TIPS = [
     {
         title: "Sip Warm Water Throughout the Day",
         body: "Drinking warm water or herbal teas stimulates your digestive fire (Agni), clears metabolic toxins (Ama), and prevents gut sluggishness."
     },
     {
-        title: "Daily Yoga & Stretch",
+        title: "Daily Gentle Yoga & Asanas",
         body: "Practicing 15 minutes of gentle yoga or Surya Namaskar in the morning opens your body's energy channels, enhances lung capacity, and relieves joint stiffness."
     },
     {
         title: "Mindful Deep Breathing (Pranayama)",
-        body: "Taking 5 minutes for alternate-nostril breathing (Anulom Vilom) calms nervous tension, stabilizes heart rate, and harmonizes Vata energy."
+        body: "Taking 5 minutes for alternate-nostril breathing (Anulom Vilom) calms nervous tension, stabilizes blood pressure, and harmonizes Vata energy."
     },
     {
         title: "Eat Fresh, Warm Meals in Moderation",
@@ -114,17 +191,11 @@ const WELLNESS_TIPS = [
 // ======================================================================================
 // 1. SCREEN NAVIGATION CONTROLLER
 // ======================================================================================
-
-/**
- * Transitions smoothly between screens
- */
 function navigateTo(targetScreenId) {
-    // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
 
-    // Show target screen
     const targetScreen = document.getElementById(targetScreenId);
     if (targetScreen) {
         targetScreen.classList.add('active');
@@ -135,26 +206,35 @@ function navigateTo(targetScreenId) {
 
 
 // ======================================================================================
-// 2. PAGE 1: WELCOME SCREEN ACTIONS
+// 2. WELCOME SCREEN & KASHAYA MENU ACTIONS
 // ======================================================================================
 
 /**
- * Initiates the AI Health Assessment Track
+ * Opens the dedicated Kashaya Menu screen (Kashaya A, B, and C)
+ */
+function openKashayaMenu() {
+    navigateTo('screen-kashaya-menu');
+}
+
+/**
+ * Initiates the AI Health Assessment Track:
+ * - Resets screening inputs
+ * - Generates a fresh randomized set of 7 questions (4 core randomized + 3 from pool)
+ * - Transitions to Step 1: Screening
  */
 function startAssessment() {
-    // Reset inputs
     document.getElementById('inputAge').value = 28;
     document.getElementById('inputGender').value = "Female";
     document.getElementById('checkPregnant').checked = false;
     document.getElementById('checkLactating').checked = false;
     handleGenderChange();
 
-    renderQuestions();
+    generateDynamicSevenQuestions();
     navigateTo('screen-screening');
 }
 
 /**
- * Direct Instant Dispense Track (For Regular Tea & Classical Kashaya)
+ * Direct Instant Dispense Track (For Regular Tea & Selected Kashayas)
  */
 function startDirectDispense(drinkName, subtitle, description, ingredients) {
     currentDispensingDrink = {
@@ -164,18 +244,87 @@ function startDirectDispense(drinkName, subtitle, description, ingredients) {
         ingredients: ingredients
     };
 
-    // Begin dispensing animation immediately
     beginDispensingAnimation(drinkName, subtitle);
 }
 
 
 // ======================================================================================
-// 3. SCREEN 2: BASIC SCREENING & SAFETY GATES
+// 3. THE DYNAMIC 7-QUESTION GENERATION ENGINE
 // ======================================================================================
 
 /**
- * Handles Gender field changes (pregnancy/lactation only relevant for Female)
+ * Utility: Standard Fisher-Yates array shuffle
  */
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+/**
+ * Generates the exact 7 questions:
+ * - Set 1: 4 core questions with their order randomized
+ * - Set 2: 3 questions selected at random from the 9-question pool (Q5 - Q13)
+ */
+function generateDynamicSevenQuestions() {
+    // 1. Shuffle Set 1 (4 core questions)
+    const randomizedSet1 = shuffleArray(SET_1_CORE_QUESTIONS);
+
+    // 2. Pick 3 random questions from Set 2 pool
+    const shuffledSet2Pool = shuffleArray(SET_2_QUESTION_POOL);
+    const selected3FromSet2 = shuffledSet2Pool.slice(0, 3);
+
+    // 3. Combine to form the exact 7 questions for this user
+    activeConsultationQuestions = [...randomizedSet1, ...selected3FromSet2];
+
+    // 4. Render into DOM
+    renderActiveQuestions();
+}
+
+/**
+ * Renders the active 7 questions into the UI with clean numbering and options
+ */
+function renderActiveQuestions() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    activeConsultationQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card-item';
+
+        let optionsHtml = '';
+        q.options.forEach((opt, optIndex) => {
+            const isChecked = optIndex === 0 ? 'checked' : '';
+            optionsHtml += `
+                <label class="clean-option-card">
+                    <input type="radio" name="${q.id}" value="${opt.val}" ${isChecked}>
+                    <span class="option-indicator"></span>
+                    <span class="option-desc">${opt.text}</span>
+                </label>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="q-title-row">
+                <span class="q-number">${index + 1}</span>
+                <span class="q-question-text">${q.question}</span>
+            </div>
+            <div class="clean-options-grid">
+                ${optionsHtml}
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+// ======================================================================================
+// 4. ASSESSMENT STEP 1: SCREENING & SAFETY GATES
+// ======================================================================================
 function handleGenderChange() {
     const gender = document.getElementById('inputGender').value;
     const femaleBox = document.getElementById('femaleSafetyBox');
@@ -194,9 +343,6 @@ function handleGenderChange() {
     evaluateSafetyGate();
 }
 
-/**
- * Real-time safety gate evaluation (Age < 5 or Pregnancy = true)
- */
 function evaluateSafetyGate() {
     const age = parseInt(document.getElementById('inputAge').value, 10) || 0;
     const isPregnant = document.getElementById('checkPregnant').checked;
@@ -222,12 +368,8 @@ function evaluateSafetyGate() {
     return true;
 }
 
-// Attach listener to Age input
 document.getElementById('inputAge').addEventListener('input', evaluateSafetyGate);
 
-/**
- * Validates screening inputs and advances to Questions
- */
 function proceedFromScreening() {
     const age = parseInt(document.getElementById('inputAge').value, 10);
     const isPregnant = document.getElementById('checkPregnant').checked;
@@ -237,7 +379,6 @@ function proceedFromScreening() {
         return;
     }
 
-    // Check safety gates
     if (isPregnant) {
         document.getElementById('lockoutDetails').textContent = 
             "Active pregnancy detected. Potent herbal decoctions can alter maternal physiology. Please consult the clinical wellness desk.";
@@ -255,69 +396,23 @@ function proceedFromScreening() {
     navigateTo('screen-questions');
 }
 
-
-// ======================================================================================
-// 4. SCREEN 3: 7 SIMPLE QUESTIONS (NO DOSHA JARGON)
-// ======================================================================================
-
-/**
- * Renders the 7 questions with clean, everyday natural language options
- */
-function renderQuestions() {
-    const container = document.getElementById('questionsContainer');
-    container.innerHTML = '';
-
-    CLEAN_QUESTIONS.forEach((q, qIndex) => {
-        const card = document.createElement('div');
-        card.className = 'question-card-item';
-
-        let optionsHtml = '';
-        q.options.forEach((opt, optIndex) => {
-            const isChecked = optIndex === 0 ? 'checked' : '';
-            optionsHtml += `
-                <label class="clean-option-card">
-                    <input type="radio" name="${q.id}" value="${opt.val}" ${isChecked}>
-                    <span class="option-indicator"></span>
-                    <span class="option-desc">${opt.text}</span>
-                </label>
-            `;
-        });
-
-        card.innerHTML = `
-            <div class="q-title-row">
-                <span class="q-number">${q.number}</span>
-                <span class="q-question-text">${q.question}</span>
-            </div>
-            <div class="clean-options-grid">
-                ${optionsHtml}
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-}
-
 function proceedFromQuestions() {
     navigateTo('screen-symptoms');
 }
 
 
 // ======================================================================================
-// 5. SCREEN 4: SUBMIT ASSESSMENT & API CALL
+// 5. ASSESSMENT STEP 3: SUBMIT CONSULTATION & API CALL
 // ======================================================================================
-
-/**
- * Submits consultation data to the Ayurvedic engine API
- */
 async function submitAssessment() {
     const age = parseInt(document.getElementById('inputAge').value, 10) || 28;
     const gender = document.getElementById('inputGender').value;
     const isPregnant = document.getElementById('checkPregnant').checked;
     const isLactating = document.getElementById('checkLactating').checked;
 
-    // Collect 7 answers
+    // Collect answers from the 7 questions currently active on screen
     const answers = {};
-    CLEAN_QUESTIONS.forEach(q => {
+    activeConsultationQuestions.forEach(q => {
         const selected = document.querySelector(`input[name="${q.id}"]:checked`);
         answers[q.id] = selected ? parseInt(selected.value, 10) : 0;
     });
@@ -361,29 +456,22 @@ async function submitAssessment() {
 
 
 // ======================================================================================
-// 6. SCREEN 5: RESULT & PRESCRIPTION PAGE
+// 6. ASSESSMENT STEP 4: RESULT PAGE
 // ======================================================================================
-
-/**
- * Populates the result screen with the model's findings
- */
 function populateResultScreen(data) {
     const diag = data.diagnosis;
     const presc = data.prescription;
 
-    // Display Constitution and Metabolism
     document.getElementById('resConstitution').textContent = diag.prakriti_label;
     document.getElementById('resMetabolism').textContent = diag.agni.type;
     document.getElementById('resSelectedSymptom').textContent = diag.selected_symptom;
 
-    // Drink Card
     document.getElementById('resTeaCode').textContent = presc.tea_code;
     document.getElementById('resDrinkName').textContent = presc.tea_name;
     document.getElementById('resCategory').textContent = presc.category;
     document.getElementById('resAction').textContent = presc.clinical_action;
     document.getElementById('resIndication').textContent = presc.primary_indication;
 
-    // Ingredients
     const ingList = document.getElementById('resIngredientsList');
     ingList.innerHTML = '';
     presc.ingredients.forEach(ing => {
@@ -400,16 +488,10 @@ function populateResultScreen(data) {
     };
 }
 
-/**
- * Retake assessment - resets back to step 1
- */
 function retakeAssessment() {
     startAssessment();
 }
 
-/**
- * Trigger Dispense from the Result Page
- */
 function triggerDispenseFromAssessment() {
     if (currentDispensingDrink) {
         beginDispensingAnimation(currentDispensingDrink.name, currentDispensingDrink.subtitle);
@@ -418,20 +500,14 @@ function triggerDispenseFromAssessment() {
 
 
 // ======================================================================================
-// 7. SCREEN 6: PREPARING & DISPENSING (ANIMATION + ROTATING WELLNESS TIPS)
+// 7. DISPENSING SCREEN: ANIMATION & ROTATING WELLNESS TIPS
 // ======================================================================================
-
-/**
- * Controls the animated dispensing sequence and lifestyle tips rotation
- */
 function beginDispensingAnimation(drinkName, subtitle) {
     navigateTo('screen-dispensing');
 
-    // Set titles
     document.getElementById('dispenseDrinkTitle').textContent = `Dispensing: ${drinkName}`;
     document.getElementById('dispenseDrinkSub').textContent = subtitle || "Freshly preparing and filtering your herbal beverage...";
 
-    // Reset progress UI
     const progressFill = document.getElementById('dispenseProgress');
     const percentLabel = document.getElementById('dispensePercent');
     const stepLabel = document.getElementById('dispenseStepText');
@@ -444,21 +520,17 @@ function beginDispensingAnimation(drinkName, subtitle) {
     stepLabel.textContent = 'Heating water & weighing botanicals...';
     completeBox.classList.add('hidden');
 
-    // Reset tips
     activeTipIndex = 0;
     updateActiveTipDisplay(activeTipIndex);
 
-    // Clear any previous intervals
     if (dispenseInterval) clearInterval(dispenseInterval);
     if (tipRotationInterval) clearInterval(tipRotationInterval);
 
-    // Rotate tips every 3 seconds
     tipRotationInterval = setInterval(() => {
         activeTipIndex = (activeTipIndex + 1) % WELLNESS_TIPS.length;
         updateActiveTipDisplay(activeTipIndex);
     }, 2800);
 
-    // Progress animation (0 to 100% over ~6 seconds)
     let currentPct = 0;
     const stages = [
         { at: 15, text: "Adding 1:16 ratio purified water to extraction chamber..." },
@@ -476,7 +548,6 @@ function beginDispensingAnimation(drinkName, subtitle) {
         liquid.style.height = `${currentPct * 0.9}%`;
         percentLabel.textContent = `${currentPct}%`;
 
-        // Update stage text
         for (let i = 0; i < stages.length; i++) {
             if (currentPct <= stages[i].at) {
                 stepLabel.textContent = stages[i].text;
@@ -484,7 +555,6 @@ function beginDispensingAnimation(drinkName, subtitle) {
             }
         }
 
-        // Completion
         if (currentPct >= 100) {
             clearInterval(dispenseInterval);
             clearInterval(tipRotationInterval);
@@ -494,15 +564,11 @@ function beginDispensingAnimation(drinkName, subtitle) {
     }, 120);
 }
 
-/**
- * Updates the wellness tip card and indicator dots
- */
 function updateActiveTipDisplay(index) {
     const tip = WELLNESS_TIPS[index];
     document.getElementById('tipTitle').textContent = tip.title;
     document.getElementById('tipBody').textContent = tip.body;
 
-    // Update indicator dots
     for (let i = 0; i < WELLNESS_TIPS.length; i++) {
         const dot = document.getElementById(`dot-${i}`);
         if (dot) {
@@ -516,6 +582,5 @@ function updateActiveTipDisplay(index) {
 // 8. INITIALIZATION ON PAGE LOAD
 // ======================================================================================
 window.addEventListener('DOMContentLoaded', () => {
-    // Render initial questions in background
-    renderQuestions();
+    generateDynamicSevenQuestions();
 });

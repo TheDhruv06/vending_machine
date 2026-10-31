@@ -51,61 +51,58 @@ def check_safety_gates(age: int, is_pregnant: bool, is_lactating: bool) -> Tuple
 
 
 # ======================================================================================
-# 2. AYURVEDIC QUESTIONNAIRE DEFINITIONS (PRAKRITI & AGNI)
+# 2. AYURVEDIC QUESTIONNAIRE DEFINITIONS (SET 1 CORE + SET 2 POOL)
 # ======================================================================================
-# The questionnaire follows the standard 7-question clinical assessment covering:
-# 1. Body Frame (Vata = lean, Pitta = medium, Kapha = broad)
-# 2. Skin Texture (Vata = dry, Pitta = warm/oily, Kapha = soft/moist)
-# 3. Appetite & Digestion (Identifies Agni: Vishama, Tikshna, Manda, Sama)
-# 4. Sleep Pattern (Vata = light/erratic, Pitta = moderate, Kapha = deep/heavy)
-# 5. Temperament / Stress Response (Vata = anxious, Pitta = irritable, Kapha = calm)
-# 6. Physical Stamina & Energy (Vata = variable, Pitta = strong, Kapha = steady)
-# 7. Sweating & Body Temperature (Vata = minimal/cold, Pitta = excessive/hot, Kapha = slow/cool)
+# As specified in PRAKRITI & AGNI-1.docx:
+# - SET 1: 4 Core Questions (Body Frame, Skin, Appetite/Agni, Sleep)
+# - SET 2: 9 Questions Pool (Q5 - Q13 in docx). 3 questions are randomly picked for each user.
 
-PRAKRITI_QUESTIONS = [
+SET_1_CORE_QUESTIONS = [
     {
         "id": "body_frame",
-        "title": "1. Body Frame & Build",
+        "title": "Body Frame & Build",
+        "question": "How would you describe your natural body build and frame?",
         "options": [
-            {"label": "Thin, lean, bony, difficulties gaining weight", "dosha": "V"},
-            {"label": "Medium, well-proportioned, muscular build", "dosha": "P"},
-            {"label": "Broad, sturdy, heavy frame, tends to gain weight easily", "dosha": "K"}
+            {"label": "Thin, lean, bony; difficulty gaining weight", "dosha": "V"},
+            {"label": "Medium, well-proportioned, muscular athletic build", "dosha": "P"},
+            {"label": "Broad, sturdy, heavy frame; tends to gain weight easily", "dosha": "K"}
         ]
     },
     {
         "id": "skin_texture",
-        "title": "2. Skin Texture & Feel",
+        "title": "Skin Texture & Feel",
+        "question": "How does your skin usually look and feel?",
         "options": [
-            {"label": "Dry, rough, cool to touch, prone to chapping", "dosha": "V"},
-            {"label": "Warm, reddish, sensitive, prone to freckles/rashes", "dosha": "P"},
-            {"label": "Soft, oily, smooth, cool, thick skin", "dosha": "K"}
+            {"label": "Dry, rough, cool to touch; prone to chapping in dry weather", "dosha": "V"},
+            {"label": "Warm, reddish, sensitive; easily reacts to heat and sun", "dosha": "P"},
+            {"label": "Soft, smooth, or slightly oily; thick, cool, and well-hydrated", "dosha": "K"}
         ]
     },
     {
         "id": "digestion_agni",
-        "title": "3. Appetite & Digestion (Agni Type)",
-        "description": "Crucial Ayurvedic parameter indicating the strength of your metabolic fire.",
+        "title": "Appetite & Digestion (Agni Evaluator)",
+        "question": "How is your daily appetite and digestive comfort?",
         "options": [
             {
-                "label": "Irregular appetite, gas/bloating, sometimes constipated", 
+                "label": "Irregular appetite; prone to gas, bloating, or variable hunger", 
                 "dosha": "V", 
                 "agni": "Vishama Agni",
                 "agni_desc": "Erratic metabolic fire (Vata dominant). Digestion fluctuates unpredictably."
             },
             {
-                "label": "Intense/sharp appetite, must eat on time, acidic burning if meal missed", 
+                "label": "Sharp, intense hunger; need meals on time or feel acidic/burning", 
                 "dosha": "P", 
                 "agni": "Tikshna Agni",
-                "agni_desc": "Intense/sharp metabolic fire (Pitta dominant). High acid and bile secretion."
+                "agni_desc": "Intense/sharp metabolic fire (Pitta dominant). High acid and enzymatic heat."
             },
             {
-                "label": "Slow appetite, can skip meals easily, feeling heavy or sluggish after eating", 
+                "label": "Slow, mild appetite; feel heavy or sluggish for hours after meals", 
                 "dosha": "K", 
                 "agni": "Manda Agni",
                 "agni_desc": "Slow/sluggish metabolic fire (Kapha dominant). Heavy digestion and slow clearance."
             },
             {
-                "label": "Balanced, consistent appetite, comfortable digestion without distress", 
+                "label": "Consistent, healthy appetite; digest food smoothly without distress", 
                 "dosha": "VPK", 
                 "agni": "Sama Agni",
                 "agni_desc": "Equilibrated digestive fire. Optimal enzymatic activity and nutrient absorption."
@@ -114,89 +111,148 @@ PRAKRITI_QUESTIONS = [
     },
     {
         "id": "sleep_pattern",
-        "title": "4. Sleep Quality",
+        "title": "Sleep Quality & Habits",
+        "question": "How do you typically sleep through the night?",
         "options": [
-            {"label": "Light, interrupted, tends to wake up easily or think excessively", "dosha": "V"},
-            {"label": "Moderate (6-7 hrs), sound sleep, wakes up alert", "dosha": "P"},
-            {"label": "Deep, heavy, prolonged (8+ hrs), feels slow or groggy in morning", "dosha": "K"}
+            {"label": "Light or interrupted sleep; wake up easily with an active mind", "dosha": "V"},
+            {"label": "Moderate sound sleep (6–7 hours); wake up feeling refreshed", "dosha": "P"},
+            {"label": "Deep, heavy sleep (8+ hours); tend to feel slow or groggy in morning", "dosha": "K"}
         ]
-    },
+    }
+]
+
+SET_2_QUESTION_POOL = [
     {
         "id": "temperament",
-        "title": "5. Mind Under Stress & Temperament",
+        "title": "Mind Under Stress (Docx Q5)",
+        "question": "How do you generally respond to sudden pressure or stress?",
         "options": [
-            {"label": "Anxious, restless, overthinking, quick to worry", "dosha": "V"},
-            {"label": "Sharp, ambitious, irritable or impatient when challenged", "dosha": "P"},
-            {"label": "Calm, patient, unbothered, takes time to react or change", "dosha": "K"}
+            {"label": "Tend to feel anxious, restless, or quick to worry", "dosha": "V"},
+            {"label": "Tend to feel irritable, impatient, or intensely focused", "dosha": "P"},
+            {"label": "Tend to stay calm, relaxed, patient, and slow to react", "dosha": "K"}
         ]
     },
     {
         "id": "energy_stamina",
-        "title": "6. Energy Levels & Stamina",
+        "title": "Energy Levels & Everyday Stamina (Docx Q6)",
+        "question": "How would you describe your everyday physical energy and stamina?",
         "options": [
-            {"label": "Variable in bursts; tires quickly and recovers with rest", "dosha": "V"},
-            {"label": "Strong, focused, high endurance until exhausted", "dosha": "P"},
-            {"label": "Steady, consistent, sustained endurance throughout the day", "dosha": "K"}
+            {"label": "Comes in variable bursts; tire quickly and recharge with rest", "dosha": "V"},
+            {"label": "Strong, focused stamina; work with intensity until exhausted", "dosha": "P"},
+            {"label": "Steady, enduring stamina; keep moving at a consistent pace all day", "dosha": "K"}
         ]
     },
     {
         "id": "sweating_heat",
-        "title": "7. Sweating & Thermal Sensitivity",
+        "title": "Sweating & Temperature Sensitivity (Docx Q7)",
+        "question": "How sensitive are you to temperature and changing weather?",
         "options": [
-            {"label": "Minimal sweating, dislikes cold and windy weather", "dosha": "V"},
-            {"label": "Sweats easily and profusely, dislikes hot weather", "dosha": "P"},
-            {"label": "Moderate sweat with exertion, dislikes cold and damp/rainy weather", "dosha": "K"}
+            {"label": "Minimal sweating; feel chilly easily and dislike cold/windy weather", "dosha": "V"},
+            {"label": "Sweat easily and profusely; dislike heat and direct sun", "dosha": "P"},
+            {"label": "Sweat moderately with exertion; dislike cold, damp, or rainy weather", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "morning_feeling",
+        "title": "Usual Morning Feeling (Docx Q8 / Part 2 Q1)",
+        "question": "What is your usual morning feeling when you wake up?",
+        "options": [
+            {"label": "Energetic but sometimes restless or hurried", "dosha": "V"},
+            {"label": "Active, motivated, and ready to start tasks immediately", "dosha": "P"},
+            {"label": "Slow to wake up, prefers a relaxed pace, steady afterward", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "eating_speed",
+        "title": "Usual Eating Speed (Docx Q9 / Part 2 Q2)",
+        "question": "What is your usual eating speed during meals?",
+        "options": [
+            {"label": "Fast, hurried, and sometimes irregular", "dosha": "V"},
+            {"label": "Moderate, focused, and steady pace", "dosha": "P"},
+            {"label": "Slow, relaxed, and deliberate pace", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "body_movement",
+        "title": "Body Activity & Movement (Docx Q10 / Part 2 Q3)",
+        "question": "How would you describe your general body movements and walking pace?",
+        "options": [
+            {"label": "Fast movements; talk, walk, and gesture quickly", "dosha": "V"},
+            {"label": "Moderate, purposeful, and coordinated movements", "dosha": "P"},
+            {"label": "Slow, calm, graceful, and steady movements", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "physical_stamina",
+        "title": "Physical Stamina Under Exertion (Docx Q11 / Part 2 Q4)",
+        "question": "How does your body hold up during sustained physical exertion?",
+        "options": [
+            {"label": "Gets tired or fatigued quickly after exertion", "dosha": "V"},
+            {"label": "Moderate to strong stamina; determined and focused", "dosha": "P"},
+            {"label": "High endurance and sustained stamina without feeling drained", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "hunger_pattern",
+        "title": "Daily Hunger Pattern (Docx Q12 / Part 2 Q5)",
+        "question": "How does your hunger develop throughout the day?",
+        "options": [
+            {"label": "Hunger varies unpredictably throughout the day", "dosha": "V"},
+            {"label": "Feels hungry at sharp, regular, and predictable intervals", "dosha": "P"},
+            {"label": "Can comfortably delay or skip meals without distress", "dosha": "K"}
+        ]
+    },
+    {
+        "id": "memory_retention",
+        "title": "Learning & Memory Retention (Docx Q13 / Part 2 Q6)",
+        "question": "How do you naturally absorb and recall new information?",
+        "options": [
+            {"label": "Learns quickly but may forget quickly if not reinforced", "dosha": "V"},
+            {"label": "Has sharp, precise, and well-organized memory", "dosha": "P"},
+            {"label": "Learns gradually and deliberately, but retains for a very long time", "dosha": "K"}
         ]
     }
 ]
+
+# Combined lookup map of all questions by ID
+ALL_QUESTIONS_MAP = {q["id"]: q for q in (SET_1_CORE_QUESTIONS + SET_2_QUESTION_POOL)}
+
+# Legacy reference for backward compatibility
+PRAKRITI_QUESTIONS = SET_1_CORE_QUESTIONS + SET_2_QUESTION_POOL[:3]
 
 
 # ======================================================================================
 # 3. PRAKRITI CALCULATION ENGINE
 # ======================================================================================
-def calculate_prakriti_and_agni(answers: Dict[str, str]) -> Dict[str, Any]:
+def calculate_prakriti_and_agni(answers: Dict[str, Any]) -> Dict[str, Any]:
     """
     Computes Dosha scores and determines the dominant Prakriti profile and Agni state.
-    
-    Prakriti Classification:
-      - Single Dosha: V (Vata), P (Pitta), K (Kapha)
-      - Dual Dosha: VP (Vata-Pitta), PK (Pitta-Kapha), VK (Vata-Kapha)
-      - Tridoshic: VPK (Vata-Pitta-Kapha equilibrium)
-      
-    Agni Classification:
-      - Vishama Agni (Vata)
-      - Tikshna Agni (Pitta)
-      - Manda Agni (Kapha)
-      - Sama Agni (Balanced)
+    Evaluates whichever 7 questions (4 core + 3 dynamic pool) were answered by the user.
     """
-    # Tally scores
     scores = {"V": 0, "P": 0, "K": 0}
     agni_result = {
         "type": "Sama Agni",
         "description": "Equilibrated digestive fire (Optimal metabolism)."
     }
 
-    # Evaluate each question answer
-    for q in PRAKRITI_QUESTIONS:
-        q_id = q["id"]
-        chosen_index = answers.get(q_id)
-        
-        if chosen_index is not None and str(chosen_index).isdigit():
+    # Evaluate each answered question against our comprehensive question map
+    for q_id, chosen_index in answers.items():
+        if q_id in ALL_QUESTIONS_MAP and chosen_index is not None and str(chosen_index).isdigit():
             idx = int(chosen_index)
-            if 0 <= idx < len(q["options"]):
-                chosen_opt = q["options"][idx]
+            q_spec = ALL_QUESTIONS_MAP[q_id]
+            if 0 <= idx < len(q_spec["options"]):
+                chosen_opt = q_spec["options"][idx]
                 dosha_tag = chosen_opt.get("dosha")
-                
+
                 # Update dosha points
                 if dosha_tag in scores:
                     scores[dosha_tag] += 1
                 elif dosha_tag == "VPK":
-                    # Balanced option contributes equally
                     scores["V"] += 1
                     scores["P"] += 1
                     scores["K"] += 1
-                
-                # Extract Agni information from Question 3
+
+                # Extract Agni information from digestion_agni question
                 if q_id == "digestion_agni":
                     agni_result["type"] = chosen_opt.get("agni", "Sama Agni")
                     agni_result["description"] = chosen_opt.get("agni_desc", "")
