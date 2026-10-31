@@ -224,10 +224,9 @@ function openKashayaMenu() {
  */
 function startAssessment() {
     document.getElementById('inputAge').value = 28;
-    document.getElementById('inputGender').value = "Female";
+    selectGender("Female");
     document.getElementById('checkPregnant').checked = false;
     document.getElementById('checkLactating').checked = false;
-    handleGenderChange();
 
     generateDynamicSevenQuestions();
     navigateTo('screen-screening');
@@ -325,6 +324,36 @@ function renderActiveQuestions() {
 // ======================================================================================
 // 4. ASSESSMENT STEP 1: SCREENING & SAFETY GATES
 // ======================================================================================
+
+/**
+ * Adjust age with stepper buttons
+ */
+function adjustAge(delta) {
+    const ageInput = document.getElementById('inputAge');
+    let currentAge = parseInt(ageInput.value, 10) || 28;
+    currentAge = Math.max(1, Math.min(110, currentAge + delta));
+    ageInput.value = currentAge;
+    evaluateSafetyGate();
+}
+
+/**
+ * Select gender via touch pills
+ */
+function selectGender(genderVal) {
+    document.getElementById('inputGender').value = genderVal;
+
+    document.querySelectorAll('.gender-pill').forEach(pill => {
+        pill.classList.remove('active');
+    });
+
+    const activePill = document.getElementById(`pill-${genderVal}`);
+    if (activePill) {
+        activePill.classList.add('active');
+    }
+
+    handleGenderChange();
+}
+
 function handleGenderChange() {
     const gender = document.getElementById('inputGender').value;
     const femaleBox = document.getElementById('femaleSafetyBox');

@@ -32,13 +32,13 @@
         </header>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 1: WELCOME & PRIMARY SELECTION (3 MAIN BUTTONS)            -->
+        <!-- SCREEN 1: WELCOME SCREEN (3 PRIMARY BUTTONS)                      -->
         <!-- ================================================================= -->
         <section id="screen-welcome" class="screen active">
             <div class="welcome-hero">
                 <span class="hero-badge">Welcome to Soil Veda</span>
                 <h2 class="hero-heading">How would you like your beverage prepared today?</h2>
-                <p class="hero-subtext">Choose a quick brew or take a 60-second assessment for a personalized Ayurvedic formula.</p>
+                <p class="hero-subtext">Tap an option below to start your drink preparation:</p>
             </div>
 
             <div class="welcome-options-grid">
@@ -48,35 +48,35 @@
                         <span class="choice-icon">🌿</span>
                     </div>
                     <div class="choice-text">
-                        <span class="choice-tag">AI-Assisted Personalization</span>
+                        <span class="choice-tag">Personalized AI Assessment</span>
                         <h3>Take Health Assessment</h3>
-                        <p>Answer a few simple questions to determine your constitution and receive a customized herbal tea tailored to your needs.</p>
+                        <p>Answer 7 quick questions to discover your body constitution and get a customized herbal brew.</p>
                     </div>
                     <div class="choice-arrow">&rarr;</div>
                 </button>
 
                 <!-- OPTION 2: REGULAR TEA -->
-                <button type="button" class="kiosk-choice-card" onclick="startDirectDispense('Regular Tea', 'Classic Freshly Brewed Tea', 'Rich Assam CTC tea leaves infused with crushed ginger and aromatic green cardamom.', ['Assam Black Tea', 'Fresh Ginger', 'Cardamom'])">
+                <button type="button" class="kiosk-choice-card" onclick="startDirectDispense('Regular Tea', 'Classic Fresh Brewed Tea', 'Freshly brewed hot chai with ginger & cardamom.')">
                     <div class="choice-icon-wrap">
                         <span class="choice-icon">☕</span>
                     </div>
                     <div class="choice-text">
                         <span class="choice-tag">Instant Brew</span>
                         <h3>Regular Tea</h3>
-                        <p>Freshly brewed classic hot tea with gentle aromatic Indian spices. Ideal for everyday refreshment.</p>
+                        <p>Classic freshly brewed hot tea infused with gentle aromatic Indian spices.</p>
                     </div>
                     <div class="choice-arrow">&rarr;</div>
                 </button>
 
-                <!-- OPTION 3: CLASSICAL KASHAYA -->
+                <!-- OPTION 3: KASHAYA (OPENS KASHAYA A, B, C SELECTION) -->
                 <button type="button" class="kiosk-choice-card" onclick="openKashayaMenu()">
                     <div class="choice-icon-wrap">
                         <span class="choice-icon">🍵</span>
                     </div>
                     <div class="choice-text">
-                        <span class="choice-tag">Standard Cartridge Decoction</span>
-                        <h3>Classical Kashaya</h3>
-                        <p>Choose from three classical Ayurvedic medicinal formulations: Kashaya A, Kashaya B, or Kashaya C.</p>
+                        <span class="choice-tag">Standard Decoctions</span>
+                        <h3>Kashaya (A, B, C)</h3>
+                        <p>Select from Kashaya A, Kashaya B, or Kashaya C prepared according to classical Kwatha principles.</p>
                     </div>
                     <div class="choice-arrow">&rarr;</div>
                 </button>
@@ -84,60 +84,38 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN: KASHAYA FORMULATION SELECTION (KASHAYA A, B, C)           -->
+        <!-- SCREEN 2: KASHAYA SELECTION (JUST KASHAYA A, B, AND C)            -->
         <!-- ================================================================= -->
         <section id="screen-kashaya-menu" class="screen">
-            <div class="screen-header">
-                <span class="step-indicator">Classical Decoction Menu</span>
-                <h2>Select Your Kashaya Formulation</h2>
-                <p>Choose from our standardized, cartridge-based classical Ayurvedic Kashayas:</p>
+            <div class="screen-header text-center">
+                <h2>Select Your Kashaya</h2>
+                <p>Tap your choice below to dispense immediately:</p>
             </div>
 
-            <div class="kashaya-cards-grid">
+            <div class="kashaya-clean-grid">
                 <!-- KASHAYA A -->
-                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation A', 'Digestive & Carminative Kwath (Vata Balance)', 'Authentic carminative formulation boiled down to 1/4th volume to expel abdominal gas, reduce spasmodic gut cramps, and ease body stiffness.', ['Lemongrass', 'Dry Ginger (Sunthi)', 'Ajwain', 'Black Pepper'])">
-                    <div class="kashaya-card-top">
-                        <span class="cartridge-badge">Cartridge 1</span>
-                        <span class="kashaya-cup-icon">🍵</span>
-                    </div>
+                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya A', 'Classical Kashaya Formulation A', 'Decocting and dispensing Kashaya A.')">
+                    <span class="kashaya-badge">Cartridge 1</span>
+                    <span class="kashaya-big-icon">🍵</span>
                     <h3>Kashaya A</h3>
-                    <span class="kashaya-tagline">Digestive & Carminative Kwath</span>
-                    <p class="kashaya-desc">Pacifies Vata. Calms gut bloating, eases digestive spasms, and relieves morning body stiffness.</p>
-                    <div class="kashaya-ingredients">
-                        <strong>Key Herbs:</strong> Lemongrass, Dry Ginger, Ajwain, Black Pepper
-                    </div>
-                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya A &rarr;</button>
-                </div>
+                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
+                </button>
 
                 <!-- KASHAYA B -->
-                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation B', 'Cooling & Cardiotonic Kwath (Pitta Balance)', 'Classical cooling and cardioprotective formulation to neutralize internal heat, soothe acidity, and support vascular inflammation.', ['Arjun Bark (Terminalia arjuna)', 'Rose Petals', 'Cardamom', 'Licorice'])">
-                    <div class="kashaya-card-top">
-                        <span class="cartridge-badge">Cartridge 2</span>
-                        <span class="kashaya-cup-icon">🍵</span>
-                    </div>
+                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya B', 'Classical Kashaya Formulation B', 'Decocting and dispensing Kashaya B.')">
+                    <span class="kashaya-badge">Cartridge 2</span>
+                    <span class="kashaya-big-icon">🍵</span>
                     <h3>Kashaya B</h3>
-                    <span class="kashaya-tagline">Cooling & Cardiotonic Kwath</span>
-                    <p class="kashaya-desc">Pacifies Pitta. Neutralizes hyperacidity, relieves burning sensations, and promotes heart vitality.</p>
-                    <div class="kashaya-ingredients">
-                        <strong>Key Herbs:</strong> Arjun Bark, Rose Petals, Cardamom, Licorice
-                    </div>
-                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya B &rarr;</button>
-                </div>
+                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
+                </button>
 
                 <!-- KASHAYA C -->
-                <div class="kashaya-card" onclick="startDirectDispense('Kashaya Formulation C', 'Traditional Ayush Kwath (Kapha & Immunity)', 'Potent classical immunity decoction boiled down to 1/4th volume to strengthen respiratory defense, liquefy congestion, and build vitality.', ['Holy Basil (Tulsi)', 'Dry Ginger (Sunthi)', 'Cinnamon (Dalchini)', 'Black Pepper (Krishna Marich)'])">
-                    <div class="kashaya-card-top">
-                        <span class="cartridge-badge">Cartridge 3</span>
-                        <span class="kashaya-cup-icon">🍵</span>
-                    </div>
+                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya C', 'Classical Kashaya Formulation C', 'Decocting and dispensing Kashaya C.')">
+                    <span class="kashaya-badge">Cartridge 3</span>
+                    <span class="kashaya-big-icon">🍵</span>
                     <h3>Kashaya C</h3>
-                    <span class="kashaya-tagline">Traditional Ayush Kwath / Immunity</span>
-                    <p class="kashaya-desc">Pacifies Kapha. Clears chest congestion, relieves cough/cold, and boosts vital immunity (Ojas).</p>
-                    <div class="kashaya-ingredients">
-                        <strong>Key Herbs:</strong> Tulsi (Holy Basil), Sunthi, Dalchini, Black Pepper
-                    </div>
-                    <button type="button" class="btn btn-select-kashaya">Dispense Kashaya C &rarr;</button>
-                </div>
+                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
+                </button>
             </div>
 
             <div class="screen-footer">
@@ -147,40 +125,51 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 2: ASSESSMENT STEP 1 - SCREENING & SAFETY                  -->
+        <!-- SCREEN 3: ASSESSMENT STEP 1 - SCREENING & SAFETY                  -->
         <!-- ================================================================= -->
         <section id="screen-screening" class="screen">
             <div class="screen-header">
-                <div class="step-indicator">Assessment Step 1 of 3</div>
-                <h2>Basic Health & Safety Screening</h2>
-                <p>Please enter basic details so the machine can ensure formulations are safe for you.</p>
+                <div class="step-indicator">Step 1 of 3: Health Screening</div>
+                <h2>Basic Screening & Safety Verification</h2>
+                <p>Enter your details so our clinical engine can verify that formulations are safe for you.</p>
             </div>
 
             <div class="card-container">
                 <div class="form-row-2">
+                    <!-- AGE STEPPER -->
                     <div class="input-group">
                         <label for="inputAge">Your Age</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="inputAge" min="1" max="110" value="28" placeholder="e.g. 28">
-                            <span class="input-suffix">years</span>
+                        <div class="age-stepper-wrap">
+                            <button type="button" class="stepper-btn" onclick="adjustAge(-1)">−</button>
+                            <input type="number" id="inputAge" min="1" max="110" value="28">
+                            <span class="age-suffix">yrs</span>
+                            <button type="button" class="stepper-btn" onclick="adjustAge(1)">+</button>
                         </div>
-                        <small class="input-hint">Ages below 5 require direct pediatric care.</small>
+                        <small class="input-hint">Ages below 5 require direct pediatric supervision.</small>
                     </div>
 
+                    <!-- GENDER TOUCH PILLS -->
                     <div class="input-group">
-                        <label for="inputGender">Gender</label>
-                        <select id="inputGender" onchange="handleGenderChange()">
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <label>Gender</label>
+                        <div class="gender-pills-row">
+                            <button type="button" class="gender-pill active" id="pill-Female" onclick="selectGender('Female')">
+                                👩 Female
+                            </button>
+                            <button type="button" class="gender-pill" id="pill-Male" onclick="selectGender('Male')">
+                                👨 Male
+                            </button>
+                            <button type="button" class="gender-pill" id="pill-Other" onclick="selectGender('Other')">
+                                Other
+                            </button>
+                        </div>
+                        <input type="hidden" id="inputGender" value="Female">
                         <small class="input-hint">Used for physiological baseline screening.</small>
                     </div>
                 </div>
 
-                <!-- Female Physiological Considerations -->
+                <!-- Female Considerations (Pregnancy / Lactation) -->
                 <div class="safety-box" id="femaleSafetyBox">
-                    <h4>Important Health Considerations</h4>
+                    <h4>Special Health Considerations</h4>
                     <div class="toggle-group">
                         <label class="toggle-label">
                             <input type="checkbox" id="checkPregnant" onchange="evaluateSafetyGate()">
@@ -196,7 +185,7 @@
                     </div>
                 </div>
 
-                <!-- Live warning banner if pregnant or age < 5 -->
+                <!-- Live warning banner -->
                 <div class="alert-box-warning hidden" id="screeningAlert">
                     <span class="alert-icon">⚠️</span>
                     <div class="alert-text">
@@ -208,38 +197,38 @@
 
             <div class="screen-footer">
                 <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-welcome')">&larr; Back to Home</button>
-                <button type="button" class="btn btn-primary" onclick="proceedFromScreening()">Continue to Wellness Questions &rarr;</button>
+                <button type="button" class="btn btn-primary" onclick="proceedFromScreening()">Continue to Questions &rarr;</button>
             </div>
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 3: ASSESSMENT STEP 2 - 7 SIMPLE QUESTIONS (PRAKRITI/AGNI)  -->
+        <!-- SCREEN 4: ASSESSMENT STEP 2 - 7 SIMPLE QUESTIONS                  -->
         <!-- ================================================================= -->
         <section id="screen-questions" class="screen">
             <div class="screen-header">
-                <div class="step-indicator">Assessment Step 2 of 3</div>
+                <div class="step-indicator">Step 2 of 3: Wellness Assessment</div>
                 <h2>Understanding Your Body & Daily Habits</h2>
-                <p>Select the option for each question that best describes your natural baseline tendency.</p>
+                <p>Answer these 7 simple questions about your natural tendencies:</p>
             </div>
 
             <div class="questions-deck" id="questionsContainer">
-                <!-- Dynamically generated clean questions without technical dosha labels -->
+                <!-- Dynamically populated with 4 Core (randomized) + 3 Pool questions -->
             </div>
 
-            <div class="screen-footer">
+            <div class="screen-footer sticky-footer">
                 <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-screening')">&larr; Back to Screening</button>
                 <button type="button" class="btn btn-primary" onclick="proceedFromQuestions()">Continue to Current Symptoms &rarr;</button>
             </div>
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 4: ASSESSMENT STEP 3 - 10-SECOND SYMPTOM MENU (VIKRITI)   -->
+        <!-- SCREEN 5: ASSESSMENT STEP 3 - CURRENT SYMPTOM MENU (VIKRITI)      -->
         <!-- ================================================================= -->
         <section id="screen-symptoms" class="screen">
             <div class="screen-header">
-                <div class="step-indicator">Assessment Step 3 of 3</div>
+                <div class="step-indicator">Step 3 of 3: Primary Focus</div>
                 <h2>What would you like to address today?</h2>
-                <p>Tap one primary current discomfort or wellness goal to focus your drink formulation.</p>
+                <p>Tap your current discomfort or wellness goal to focus your drink formulation:</p>
             </div>
 
             <div class="symptom-deck">
@@ -252,19 +241,19 @@
                     <div class="symptom-chip-grid">
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Bloating / Gas" checked>
-                            <span class="chip-content">Bloating / Gas</span>
+                            <span class="chip-content">🫧 Bloating / Gas</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Acidity / Burning">
-                            <span class="chip-content">Acidity / Burning</span>
+                            <span class="chip-content">🔥 Acidity / Burning</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Heavy Stomach">
-                            <span class="chip-content">Heavy Stomach</span>
+                            <span class="chip-content">🪨 Heavy Stomach</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Constipation">
-                            <span class="chip-content">Constipation</span>
+                            <span class="chip-content">🌿 Constipation</span>
                         </label>
                     </div>
                 </div>
@@ -278,19 +267,19 @@
                     <div class="symptom-chip-grid">
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Back / Nerve Pain">
-                            <span class="chip-content">Back / Nerve Pain</span>
+                            <span class="chip-content">⚡ Back / Nerve Pain</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Body Ache / Fatigue">
-                            <span class="chip-content">Body Ache / Fatigue</span>
+                            <span class="chip-content">😴 Body Ache / Fatigue</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Joint Swelling">
-                            <span class="chip-content">Joint Swelling</span>
+                            <span class="chip-content">🦵 Joint Swelling</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Morning Stiffness">
-                            <span class="chip-content">Morning Stiffness</span>
+                            <span class="chip-content">🌅 Morning Stiffness</span>
                         </label>
                     </div>
                 </div>
@@ -304,15 +293,15 @@
                     <div class="symptom-chip-grid">
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Cold / Allergies">
-                            <span class="chip-content">Cold / Allergies</span>
+                            <span class="chip-content">🤧 Cold / Allergies</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Cough / Congestion">
-                            <span class="chip-content">Cough / Congestion</span>
+                            <span class="chip-content">🫁 Cough / Congestion</span>
                         </label>
                         <label class="symptom-chip">
                             <input type="radio" name="symptom_choice" value="Low Immunity">
-                            <span class="chip-content">Low Immunity</span>
+                            <span class="chip-content">🛡️ Low Immunity</span>
                         </label>
                     </div>
                 </div>
@@ -325,17 +314,17 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 5: ASSESSMENT STEP 4 - RESULT & PRESCRIPTION PAGE          -->
+        <!-- SCREEN 6: RESULT & RECOMMENDATION PAGE                            -->
         <!-- ================================================================= -->
         <section id="screen-result" class="screen">
-            <div class="screen-header">
-                <span class="result-badge">Personalized Assessment Result</span>
-                <h2>Your Custom Drink Recommendation</h2>
-                <p>Based on your body constitution and current health focus, here is your tailored formulation:</p>
+            <div class="screen-header text-center">
+                <span class="result-badge">Personalized Recommendation</span>
+                <h2>Your Recommended Herbal Formulation</h2>
             </div>
 
-            <!-- RESULT HIGHLIGHT CARD -->
+            <!-- RESULT CARD -->
             <div class="result-main-card">
+                <!-- Constitution Banner -->
                 <div class="constitution-summary-bar">
                     <div class="summary-item">
                         <span class="sub-label">Your Identified Constitution:</span>
@@ -343,7 +332,7 @@
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-item">
-                        <span class="sub-label">Metabolic Digestion (Agni):</span>
+                        <span class="sub-label">Digestive Fire (Agni):</span>
                         <h3 id="resMetabolism">Sharp & Intense Digestion</h3>
                     </div>
                     <div class="summary-divider"></div>
@@ -353,6 +342,7 @@
                     </div>
                 </div>
 
+                <!-- Drink Box -->
                 <div class="prescription-box">
                     <div class="drink-header-row">
                         <div class="drink-identity">
@@ -373,17 +363,12 @@
 
                         <div class="info-block">
                             <strong>Therapeutic Action:</strong>
-                            <p id="resAction">Deeply cooling formulation that pacifies internal body heat and calms digestive burning.</p>
-                        </div>
-
-                        <div class="info-block">
-                            <strong>Why it was chosen for you:</strong>
-                            <p id="resIndication">Tailored to harmonize your constitution while relieving the selected symptom without upsetting your natural balance.</p>
+                            <p id="resAction">Deeply cooling formulation that pacifies internal heat and soothes acidity.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- ACTION BUTTONS: DISPENSE DRINK & RETAKE -->
+                <!-- 2 ACTION BUTTONS: DISPENSE DRINK & RETAKE -->
                 <div class="result-action-bar">
                     <button type="button" class="btn btn-dispense-main" onclick="triggerDispenseFromAssessment()">
                         🚀 Dispense Drink
@@ -396,19 +381,18 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 6: PREPARING & DISPENSING (ANIMATION + WELLNESS TIPS)      -->
+        <!-- SCREEN 7: DISPENSING ANIMATION & ROTATING WELLNESS TIPS           -->
         <!-- ================================================================= -->
         <section id="screen-dispensing" class="screen">
             <div class="dispensing-container">
                 
-                <!-- TOP HEADER -->
                 <div class="dispense-heading">
                     <span class="status-pill-animated">Dispensing in Progress</span>
                     <h2 id="dispenseDrinkTitle">Preparing Your Fresh Drink</h2>
-                    <p id="dispenseDrinkSub">Please wait while the machine decocts and standardizes your beverage.</p>
+                    <p id="dispenseDrinkSub">Please wait while the machine standardizes and dispenses your beverage.</p>
                 </div>
 
-                <!-- ANIMATED KASHAYA CUP -->
+                <!-- ANIMATED CUP -->
                 <div class="steam-cup-stage">
                     <div class="steam-wrap">
                         <span class="steam s-1"></span>
@@ -430,17 +414,17 @@
                         <div class="progress-bar-fill" id="dispenseProgress"></div>
                     </div>
                     <div class="progress-meta">
-                        <span class="status-step-text" id="dispenseStepText">Boiling & decocting botanicals...</span>
+                        <span class="status-step-text" id="dispenseStepText">Heating water & extracting botanicals...</span>
                         <span class="progress-percent" id="dispensePercent">0%</span>
                     </div>
                 </div>
 
-                <!-- WELLNESS & LIFESTYLE TIPS SECTION -->
+                <!-- ROTATING WELLNESS TIPS -->
                 <div class="wellness-tips-card">
                     <div class="tips-badge">🌿 Daily Ayurvedic Wellness Tip</div>
                     <div class="tips-content" id="activeWellnessTip">
                         <h4 id="tipTitle">Drink Water Warm</h4>
-                        <p id="tipBody">Sipping warm water throughout the day stimulates your digestive fire (Agni) and naturally eliminates metabolic toxins (Ama).</p>
+                        <p id="tipBody">Sipping warm water throughout the day stimulates your digestive fire (Agni) and naturally flushes metabolic toxins (Ama).</p>
                     </div>
                     <div class="tips-indicator">
                         <span class="tip-dot active" id="dot-0"></span>
@@ -450,13 +434,13 @@
                     </div>
                 </div>
 
-                <!-- SUCCESS MESSAGE & HOME BUTTON (Revealed when 100%) -->
+                <!-- COMPLETION CARD & BACK TO HOME -->
                 <div class="dispense-complete-box hidden" id="dispenseCompleteBox">
                     <div class="complete-alert">
                         <span class="check-icon">✅</span>
                         <div>
                             <h3>Your Drink is Ready!</h3>
-                            <p>Carefully pick up your cup from the vending bay below. Enjoy your fresh brew warm!</p>
+                            <p>Pick up your cup from the vending bay below. Enjoy your fresh brew warm!</p>
                         </div>
                     </div>
                     <button type="button" class="btn btn-primary btn-large" onclick="navigateTo('screen-welcome')">
@@ -468,7 +452,7 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- SCREEN: SAFETY LOCKOUT MODAL VIEW (If pregnant or pediatric)       -->
+        <!-- SCREEN: SAFETY LOCKOUT                                            -->
         <!-- ================================================================= -->
         <section id="screen-lockout" class="screen">
             <div class="lockout-modal-card">
@@ -478,11 +462,11 @@
                     Active pregnancy or pediatric age detected.
                 </div>
                 <p class="lockout-explanation">
-                    Classical Ayurvedic decoctions and concentrated herbal formulations contain active botanical principles that require direct clinical monitoring during pregnancy and early childhood.
+                    Classical Ayurvedic herbal decoctions contain active botanical principles that require direct clinical monitoring during pregnancy and early childhood.
                 </p>
                 <div class="lockout-guidance-card">
                     <strong>What should you do?</strong>
-                    <p>Please proceed to the hospital/clinic wellness desk for a personalized, doctor-approved formulation.</p>
+                    <p>Please consult the clinic or wellness desk for a personalized, doctor-supervised recommendation.</p>
                 </div>
                 <div class="lockout-footer">
                     <button type="button" class="btn btn-primary" onclick="navigateTo('screen-welcome')">
