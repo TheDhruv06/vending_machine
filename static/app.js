@@ -1,325 +1,521 @@
 /**
  * ======================================================================================
- * SOILVEDA ORGANICS - VENDING MACHINE FRONTEND CONTROLLER
+ * SOILVEDA ORGANICS - KIOSK CONTROLLER (6-SCREEN MULTI-PAGE FLOW)
  * ======================================================================================
- * Manages user interactions, step navigation, safety gate checks, API communication,
- * and visual rendering of Prakriti, Agni, and Tea prescriptions.
+ * Manages screen routing, safety checks, clean questionnaire rendering,
+ * Ayurvedic engine API evaluation, and animated drink dispensing with lifestyle tips.
  * ======================================================================================
  */
 
-let currentStep = 1;
+// State variables
+let currentScreenId = 'screen-welcome';
+let latestConsultationResult = null;
+let currentDispensingDrink = null;
+let dispenseInterval = null;
+let tipRotationInterval = null;
+let activeTipIndex = 0;
+
+// Clean 7 Questions (Everyday language without technical dosha/agni abbreviations)
+const CLEAN_QUESTIONS = [
+    {
+        id: "body_frame",
+        number: 1,
+        question: "How would you describe your natural body build and frame?",
+        options: [
+            { text: "Slender, light, or lean build; difficulty gaining weight", val: 0 },
+            { text: "Medium, well-proportioned, or muscular athletic build", val: 1 },
+            { text: "Broad, sturdy, or heavier build; tends to gain weight easily", val: 2 }
+        ]
+    },
+    {
+        id: "skin_texture",
+        number: 2,
+        question: "How does your skin usually look and feel?",
+        options: [
+            { text: "Dry, rough, or cool to touch; tends to chap in dry weather", val: 0 },
+            { text: "Warm, reddish, or sensitive; easily reacts to heat and sun", val: 1 },
+            { text: "Soft, smooth, or slightly oily; thick, cool, and well-hydrated", val: 2 }
+        ]
+    },
+    {
+        id: "digestion_agni",
+        number: 3,
+        question: "How is your daily appetite and digestive comfort?",
+        options: [
+            { text: "Irregular appetite; prone to gas, bloating, or variable hunger", val: 0 },
+            { text: "Sharp, intense hunger; need meals on time or feel acidic/burning", val: 1 },
+            { text: "Slow, mild appetite; feel heavy or sluggish for hours after meals", val: 2 },
+            { text: "Consistent, healthy appetite; digest food smoothly without distress", val: 3 }
+        ]
+    },
+    {
+        id: "sleep_pattern",
+        number: 4,
+        question: "How do you typically sleep through the night?",
+        options: [
+            { text: "Light or interrupted sleep; wake up easily with an active mind", val: 0 },
+            { text: "Moderate sound sleep (6–7 hours); wake up feeling refreshed", val: 1 },
+            { text: "Deep, heavy sleep (8+ hours); tend to feel slow or groggy in morning", val: 2 }
+        ]
+    },
+    {
+        id: "temperament",
+        number: 5,
+        question: "How do you generally respond to sudden pressure or stress?",
+        options: [
+            { text: "Tend to feel anxious, restless, or quick to worry", val: 0 },
+            { text: "Tend to feel irritable, impatient, or fiercely goal-driven", val: 1 },
+            { text: "Tend to stay calm, relaxed, patient, and slow to get upset", val: 2 }
+        ]
+    },
+    {
+        id: "energy_stamina",
+        number: 6,
+        question: "How would you describe your everyday physical energy and stamina?",
+        options: [
+            { text: "Comes in variable bursts; tire quickly and recharge with rest", val: 0 },
+            { text: "Strong, focused stamina; work with intensity until exhausted", val: 1 },
+            { text: "Steady, enduring stamina; keep moving at a consistent pace all day", val: 2 }
+        ]
+    },
+    {
+        id: "sweating_heat",
+        number: 7,
+        question: "How sensitive are you to temperature and changing weather?",
+        options: [
+            { text: "Dislike cold and drafty winds; feel chilly easily", val: 0 },
+            { text: "Dislike heat and direct sun; sweat easily and feel hot quickly", val: 1 },
+            { text: "Dislike cold, wet, or rainy weather; comfortable in warm dry air", val: 2 }
+        ]
+    }
+];
+
+// Daily Ayurvedic Lifestyle Tips to show while preparing drink
+const WELLNESS_TIPS = [
+    {
+        title: "Sip Warm Water Throughout the Day",
+        body: "Drinking warm water or herbal teas stimulates your digestive fire (Agni), clears metabolic toxins (Ama), and prevents gut sluggishness."
+    },
+    {
+        title: "Daily Yoga & Stretch",
+        body: "Practicing 15 minutes of gentle yoga or Surya Namaskar in the morning opens your body's energy channels, enhances lung capacity, and relieves joint stiffness."
+    },
+    {
+        title: "Mindful Deep Breathing (Pranayama)",
+        body: "Taking 5 minutes for alternate-nostril breathing (Anulom Vilom) calms nervous tension, stabilizes heart rate, and harmonizes Vata energy."
+    },
+    {
+        title: "Eat Fresh, Warm Meals in Moderation",
+        body: "Freshly prepared, lightly spiced warm foods are easiest for your stomach to break down. Avoid ice-cold drinks right with your meals."
+    }
+];
+
+
+// ======================================================================================
+// 1. SCREEN NAVIGATION CONTROLLER
+// ======================================================================================
 
 /**
- * Navigate between wizard steps (1: Screening, 2: Prakriti, 3: Symptom, 4: Result)
+ * Transitions smoothly between screens
  */
-function goToStep(stepNumber) {
-    if (stepNumber < 1 || stepNumber > 4) return;
+function navigateTo(targetScreenId) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
 
-    // Hide all steps
-    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
-    
-    // Show target step
-    const target = document.getElementById(`step-${stepNumber}`);
-    if (target) {
-        target.classList.add('active');
-        currentStep = stepNumber;
+    // Show target screen
+    const targetScreen = document.getElementById(targetScreenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+        currentScreenId = targetScreenId;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+}
 
-    // Update Stepper indicators
-    for (let i = 1; i <= 4; i++) {
-        const navItem = document.getElementById(`step-nav-${i}`);
-        const line = document.getElementById(`line-${i}`);
 
-        if (i < stepNumber) {
-            navItem.className = 'step-item completed';
-            if (line) line.classList.add('filled');
-        } else if (i === stepNumber) {
-            navItem.className = 'step-item active';
-            if (line) line.classList.remove('filled');
-        } else {
-            navItem.className = 'step-item';
-            if (line) line.classList.remove('filled');
-        }
-    }
+// ======================================================================================
+// 2. PAGE 1: WELCOME SCREEN ACTIONS
+// ======================================================================================
 
-    // Scroll smoothly to top of container
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+/**
+ * Initiates the AI Health Assessment Track
+ */
+function startAssessment() {
+    // Reset inputs
+    document.getElementById('inputAge').value = 28;
+    document.getElementById('inputGender').value = "Female";
+    document.getElementById('checkPregnant').checked = false;
+    document.getElementById('checkLactating').checked = false;
+    handleGenderChange();
+
+    renderQuestions();
+    navigateTo('screen-screening');
 }
 
 /**
- * Handle Gender change: Pregnancy & Lactation only apply to Female
+ * Direct Instant Dispense Track (For Regular Tea & Classical Kashaya)
  */
-function toggleGenderFields() {
-    const gender = document.getElementById('userGender').value;
-    const femaleCard = document.getElementById('femaleSafetyCard');
-    const isPregnant = document.getElementById('isPregnant');
-    const isLactating = document.getElementById('isLactating');
+function startDirectDispense(drinkName, subtitle, description, ingredients) {
+    currentDispensingDrink = {
+        name: drinkName,
+        subtitle: subtitle,
+        description: description,
+        ingredients: ingredients
+    };
+
+    // Begin dispensing animation immediately
+    beginDispensingAnimation(drinkName, subtitle);
+}
+
+
+// ======================================================================================
+// 3. SCREEN 2: BASIC SCREENING & SAFETY GATES
+// ======================================================================================
+
+/**
+ * Handles Gender field changes (pregnancy/lactation only relevant for Female)
+ */
+function handleGenderChange() {
+    const gender = document.getElementById('inputGender').value;
+    const femaleBox = document.getElementById('femaleSafetyBox');
+    const isPregnant = document.getElementById('checkPregnant');
+    const isLactating = document.getElementById('checkLactating');
 
     if (gender === 'Male') {
-        femaleCard.style.opacity = '0.5';
-        femaleCard.style.pointerEvents = 'none';
+        femaleBox.style.opacity = '0.4';
+        femaleBox.style.pointerEvents = 'none';
         isPregnant.checked = false;
         isLactating.checked = false;
     } else {
-        femaleCard.style.opacity = '1';
-        femaleCard.style.pointerEvents = 'auto';
+        femaleBox.style.opacity = '1';
+        femaleBox.style.pointerEvents = 'auto';
     }
-    checkRealtimeSafety();
+    evaluateSafetyGate();
 }
 
 /**
- * Real-time alert if user inputs dangerous parameters (Age < 5 or Pregnancy = Yes)
+ * Real-time safety gate evaluation (Age < 5 or Pregnancy = true)
  */
-function checkRealtimeSafety() {
-    const age = parseInt(document.getElementById('userAge').value, 10) || 0;
-    const isPregnant = document.getElementById('isPregnant').checked;
-    const alertBanner = document.getElementById('realtimeSafetyAlert');
-    const alertTitle = document.getElementById('safetyAlertTitle');
-    const alertMsg = document.getElementById('safetyAlertMsg');
+function evaluateSafetyGate() {
+    const age = parseInt(document.getElementById('inputAge').value, 10) || 0;
+    const isPregnant = document.getElementById('checkPregnant').checked;
+    const alertBox = document.getElementById('screeningAlert');
+    const alertTitle = document.getElementById('screeningAlertTitle');
+    const alertMsg = document.getElementById('screeningAlertMsg');
 
     if (isPregnant) {
-        alertBanner.classList.remove('hidden');
-        alertTitle.textContent = "Safety Gate Alert: Active Pregnancy";
-        alertMsg.textContent = "Active pregnancy triggers an automatic machine safety lockout to prevent ingestion of uterine-stimulating or strong botanical Kashayas.";
+        alertBox.classList.remove('hidden');
+        alertTitle.textContent = "Safety Gate: Active Pregnancy Detected";
+        alertMsg.textContent = "Herbal Kashayas contain active botanical principles. Machine is locked for prenatal protection.";
         return false;
     }
 
     if (age < 5) {
-        alertBanner.classList.remove('hidden');
-        alertTitle.textContent = "Safety Gate Alert: Pediatric Restriction";
-        alertMsg.textContent = "Children under 5 years require direct pediatric medical supervision and cannot receive standard machine-formulated Kashayas.";
+        alertBox.classList.remove('hidden');
+        alertTitle.textContent = "Safety Gate: Pediatric Restriction";
+        alertMsg.textContent = "Children under 5 years require direct medical supervision and weight-adjusted pediatric care.";
         return false;
     }
 
-    alertBanner.classList.add('hidden');
+    alertBox.classList.add('hidden');
     return true;
 }
 
-// Attach listener to Age input for realtime check
-document.getElementById('userAge').addEventListener('input', checkRealtimeSafety);
+// Attach listener to Age input
+document.getElementById('inputAge').addEventListener('input', evaluateSafetyGate);
 
 /**
- * Validates Step 1 before proceeding
+ * Validates screening inputs and advances to Questions
  */
-function validateStep1AndProceed() {
-    const age = parseInt(document.getElementById('userAge').value, 10);
-    const isPregnant = document.getElementById('isPregnant').checked;
+function proceedFromScreening() {
+    const age = parseInt(document.getElementById('inputAge').value, 10);
+    const isPregnant = document.getElementById('checkPregnant').checked;
 
     if (isNaN(age) || age <= 0) {
         alert("Please enter a valid age.");
         return;
     }
 
-    // If locked by safety gate, proceed straight to Step 4 (Lockout display)
-    if (isPregnant || age < 5) {
-        submitConsultation();
+    // Check safety gates
+    if (isPregnant) {
+        document.getElementById('lockoutDetails').textContent = 
+            "Active pregnancy detected. Potent herbal decoctions can alter maternal physiology. Please consult the clinical wellness desk.";
+        navigateTo('screen-lockout');
         return;
     }
 
-    goToStep(2);
+    if (age < 5) {
+        document.getElementById('lockoutDetails').textContent = 
+            "Patient is under 5 years old. Pediatric dosing requires direct physician consultation.";
+        navigateTo('screen-lockout');
+        return;
+    }
+
+    navigateTo('screen-questions');
 }
 
-/**
- * Gather all user responses from the form and submit to the backend engine
- */
-async function submitConsultation() {
-    // 1. Gather Step 1 data
-    const age = parseInt(document.getElementById('userAge').value, 10) || 25;
-    const gender = document.getElementById('userGender').value;
-    const isPregnant = document.getElementById('isPregnant').checked;
-    const isLactating = document.getElementById('isLactating').checked;
 
-    // 2. Gather Step 2 answers (Prakriti & Agni 7 questions)
-    const prakritiAnswers = {};
-    const questionBoxes = document.querySelectorAll('.question-box');
-    questionBoxes.forEach(box => {
-        const qid = box.getAttribute('data-qid');
-        const selectedRadio = box.querySelector(`input[name="${qid}"]:checked`);
-        if (selectedRadio) {
-            prakritiAnswers[qid] = parseInt(selectedRadio.value, 10);
-        } else {
-            prakritiAnswers[qid] = 0; // Default first option if unselected
-        }
+// ======================================================================================
+// 4. SCREEN 3: 7 SIMPLE QUESTIONS (NO DOSHA JARGON)
+// ======================================================================================
+
+/**
+ * Renders the 7 questions with clean, everyday natural language options
+ */
+function renderQuestions() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    CLEAN_QUESTIONS.forEach((q, qIndex) => {
+        const card = document.createElement('div');
+        card.className = 'question-card-item';
+
+        let optionsHtml = '';
+        q.options.forEach((opt, optIndex) => {
+            const isChecked = optIndex === 0 ? 'checked' : '';
+            optionsHtml += `
+                <label class="clean-option-card">
+                    <input type="radio" name="${q.id}" value="${opt.val}" ${isChecked}>
+                    <span class="option-indicator"></span>
+                    <span class="option-desc">${opt.text}</span>
+                </label>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="q-title-row">
+                <span class="q-number">${q.number}</span>
+                <span class="q-question-text">${q.question}</span>
+            </div>
+            <div class="clean-options-grid">
+                ${optionsHtml}
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function proceedFromQuestions() {
+    navigateTo('screen-symptoms');
+}
+
+
+// ======================================================================================
+// 5. SCREEN 4: SUBMIT ASSESSMENT & API CALL
+// ======================================================================================
+
+/**
+ * Submits consultation data to the Ayurvedic engine API
+ */
+async function submitAssessment() {
+    const age = parseInt(document.getElementById('inputAge').value, 10) || 28;
+    const gender = document.getElementById('inputGender').value;
+    const isPregnant = document.getElementById('checkPregnant').checked;
+    const isLactating = document.getElementById('checkLactating').checked;
+
+    // Collect 7 answers
+    const answers = {};
+    CLEAN_QUESTIONS.forEach(q => {
+        const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+        answers[q.id] = selected ? parseInt(selected.value, 10) : 0;
     });
 
-    // 3. Gather Step 3 (Selected Symptom)
-    const selectedSymptomRadio = document.querySelector('input[name="selected_symptom"]:checked');
-    const selectedSymptom = selectedSymptomRadio ? selectedSymptomRadio.value : "Bloating / Gas";
+    // Collect selected symptom
+    const symRadio = document.querySelector('input[name="symptom_choice"]:checked');
+    const selectedSymptom = symRadio ? symRadio.value : "Bloating / Gas";
 
-    // 4. Construct payload
     const payload = {
         age: age,
         gender: gender,
         is_pregnant: isPregnant,
         is_lactating: isLactating,
-        prakriti_answers: prakritiAnswers,
+        prakriti_answers: answers,
         selected_symptom: selectedSymptom
     };
 
     try {
-        // Send to backend API
-        const response = await fetch('/api/evaluate', {
+        const res = await fetch('/api/evaluate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        const resData = await response.json();
-        if (resData.success) {
-            renderEvaluationResult(resData.data);
-            goToStep(4);
+        const json = await res.json();
+        if (json.success && json.data.is_safe) {
+            latestConsultationResult = json.data;
+            populateResultScreen(json.data);
+            navigateTo('screen-result');
+        } else if (json.data && !json.data.is_safe) {
+            document.getElementById('lockoutDetails').textContent = json.data.lockout_message;
+            navigateTo('screen-lockout');
         } else {
-            alert("Error in evaluation: " + resData.error);
+            alert("Could not process evaluation: " + (json.error || "Unknown error"));
         }
-    } catch (err) {
-        console.error("Consultation evaluation failed:", err);
-        alert("Failed to communicate with the Ayurveda engine server.");
+    } catch (e) {
+        console.error("API error:", e);
+        alert("Failed to connect to the Ayurveda Engine.");
     }
 }
 
+
+// ======================================================================================
+// 6. SCREEN 5: RESULT & PRESCRIPTION PAGE
+// ======================================================================================
+
 /**
- * Render the resulting evaluation (either safety lockout or approved prescription)
+ * Populates the result screen with the model's findings
  */
-function renderEvaluationResult(data) {
-    const lockoutContainer = document.getElementById('safetyLockoutContainer');
-    const prescriptionContainer = document.getElementById('prescriptionResultContainer');
-
-    // Case 1: Machine Locked Out (Safety Gate Triggered)
-    if (!data.is_safe || data.status === 'LOCKED') {
-        prescriptionContainer.classList.add('hidden');
-        lockoutContainer.classList.remove('hidden');
-        document.getElementById('lockoutReasonText').textContent = data.lockout_message;
-        return;
-    }
-
-    // Case 2: Approved Prescription
-    lockoutContainer.classList.add('hidden');
-    prescriptionContainer.classList.remove('hidden');
-
+function populateResultScreen(data) {
     const diag = data.diagnosis;
     const presc = data.prescription;
 
-    // Render Prakriti & Agni
-    document.getElementById('resPrakritiLabel').textContent = diag.prakriti_label;
-    document.getElementById('resPrakritiCode').textContent = diag.dominant_prakriti;
+    // Display Constitution and Metabolism
+    document.getElementById('resConstitution').textContent = diag.prakriti_label;
+    document.getElementById('resMetabolism').textContent = diag.agni.type;
+    document.getElementById('resSelectedSymptom').textContent = diag.selected_symptom;
 
-    // Update V-P-K Meters
-    const scores = diag.dosha_scores;
-    const maxScore = Math.max(scores.V, scores.P, scores.K, 7);
-    
-    document.getElementById('scoreValV').textContent = scores.V;
-    document.getElementById('scoreValP').textContent = scores.P;
-    document.getElementById('scoreValK').textContent = scores.K;
-
-    document.getElementById('meterV').style.width = `${(scores.V / maxScore) * 100}%`;
-    document.getElementById('meterP').style.width = `${(scores.P / maxScore) * 100}%`;
-    document.getElementById('meterK').style.width = `${(scores.K / maxScore) * 100}%`;
-
-    // Agni details
-    document.getElementById('resAgniType').textContent = diag.agni.type;
-    document.getElementById('resAgniDesc').textContent = diag.agni.description;
-    document.getElementById('resSymptomName').textContent = diag.selected_symptom;
-
-    // Prescribed Tea
+    // Drink Card
     document.getElementById('resTeaCode').textContent = presc.tea_code;
-    document.getElementById('resTeaName').textContent = presc.tea_name;
-    document.getElementById('resTeaCategory').textContent = presc.category;
-    document.getElementById('resClinicalAction').textContent = presc.clinical_action;
+    document.getElementById('resDrinkName').textContent = presc.tea_name;
+    document.getElementById('resCategory').textContent = presc.category;
+    document.getElementById('resAction').textContent = presc.clinical_action;
     document.getElementById('resIndication').textContent = presc.primary_indication;
 
-    // Ingredients badges
-    const ingContainer = document.getElementById('resIngredientsList');
-    ingContainer.innerHTML = '';
+    // Ingredients
+    const ingList = document.getElementById('resIngredientsList');
+    ingList.innerHTML = '';
     presc.ingredients.forEach(ing => {
-        const badge = document.createElement('span');
-        badge.className = 'ingredient-badge';
-        badge.textContent = ing;
-        ingContainer.appendChild(badge);
+        const chip = document.createElement('span');
+        chip.className = 'ingredient-pill';
+        chip.textContent = ing;
+        ingList.appendChild(chip);
     });
 
-    // Vending instructions
-    if (presc.vending_instructions) {
-        document.getElementById('specRatio').textContent = presc.vending_instructions.ratio;
-        document.getElementById('specBoil').textContent = presc.vending_instructions.boiling_cycle;
-        document.getElementById('specTemp').textContent = presc.vending_instructions.dispense_temperature;
-        document.getElementById('specVol').textContent = presc.vending_instructions.volume;
-    }
+    currentDispensingDrink = {
+        name: presc.tea_name,
+        subtitle: presc.category,
+        ingredients: presc.ingredients
+    };
 }
 
 /**
- * Load a pre-configured test profile for immediate testing
+ * Retake assessment - resets back to step 1
  */
-async function loadPreset(presetKey) {
-    try {
-        const res = await fetch(`/api/preset/${presetKey}`);
-        const data = await res.json();
-        if (!data.success) {
-            alert("Preset not found.");
-            return;
-        }
+function retakeAssessment() {
+    startAssessment();
+}
 
-        const profile = data.profile.payload;
+/**
+ * Trigger Dispense from the Result Page
+ */
+function triggerDispenseFromAssessment() {
+    if (currentDispensingDrink) {
+        beginDispensingAnimation(currentDispensingDrink.name, currentDispensingDrink.subtitle);
+    }
+}
 
-        // Populate Form Controls
-        document.getElementById('userAge').value = profile.age;
-        document.getElementById('userGender').value = profile.gender;
-        toggleGenderFields();
 
-        document.getElementById('isPregnant').checked = profile.is_pregnant;
-        document.getElementById('isLactating').checked = profile.is_lactating;
+// ======================================================================================
+// 7. SCREEN 6: PREPARING & DISPENSING (ANIMATION + ROTATING WELLNESS TIPS)
+// ======================================================================================
 
-        // Populate Prakriti Answers
-        if (profile.prakriti_answers) {
-            for (const [qid, val] of Object.entries(profile.prakriti_answers)) {
-                const radio = document.querySelector(`input[name="${qid}"][value="${val}"]`);
-                if (radio) radio.checked = true;
+/**
+ * Controls the animated dispensing sequence and lifestyle tips rotation
+ */
+function beginDispensingAnimation(drinkName, subtitle) {
+    navigateTo('screen-dispensing');
+
+    // Set titles
+    document.getElementById('dispenseDrinkTitle').textContent = `Dispensing: ${drinkName}`;
+    document.getElementById('dispenseDrinkSub').textContent = subtitle || "Freshly preparing and filtering your herbal beverage...";
+
+    // Reset progress UI
+    const progressFill = document.getElementById('dispenseProgress');
+    const percentLabel = document.getElementById('dispensePercent');
+    const stepLabel = document.getElementById('dispenseStepText');
+    const liquid = document.getElementById('cupLiquid');
+    const completeBox = document.getElementById('dispenseCompleteBox');
+
+    progressFill.style.width = '0%';
+    liquid.style.height = '0%';
+    percentLabel.textContent = '0%';
+    stepLabel.textContent = 'Heating water & weighing botanicals...';
+    completeBox.classList.add('hidden');
+
+    // Reset tips
+    activeTipIndex = 0;
+    updateActiveTipDisplay(activeTipIndex);
+
+    // Clear any previous intervals
+    if (dispenseInterval) clearInterval(dispenseInterval);
+    if (tipRotationInterval) clearInterval(tipRotationInterval);
+
+    // Rotate tips every 3 seconds
+    tipRotationInterval = setInterval(() => {
+        activeTipIndex = (activeTipIndex + 1) % WELLNESS_TIPS.length;
+        updateActiveTipDisplay(activeTipIndex);
+    }, 2800);
+
+    // Progress animation (0 to 100% over ~6 seconds)
+    let currentPct = 0;
+    const stages = [
+        { at: 15, text: "Adding 1:16 ratio purified water to extraction chamber..." },
+        { at: 40, text: "Active boiling & Ayurvedic volume reduction in progress..." },
+        { at: 70, text: "Continuous stirring & deep botanical extraction..." },
+        { at: 90, text: "Precision filtration & routing through dispensing nozzle..." },
+        { at: 100, text: "Fresh brew complete!" }
+    ];
+
+    dispenseInterval = setInterval(() => {
+        currentPct += 2;
+        if (currentPct > 100) currentPct = 100;
+
+        progressFill.style.width = `${currentPct}%`;
+        liquid.style.height = `${currentPct * 0.9}%`;
+        percentLabel.textContent = `${currentPct}%`;
+
+        // Update stage text
+        for (let i = 0; i < stages.length; i++) {
+            if (currentPct <= stages[i].at) {
+                stepLabel.textContent = stages[i].text;
+                break;
             }
         }
 
-        // Populate Symptom
-        if (profile.selected_symptom) {
-            const symRadio = document.querySelector(`input[name="selected_symptom"][value="${profile.selected_symptom}"]`);
-            if (symRadio) symRadio.checked = true;
+        // Completion
+        if (currentPct >= 100) {
+            clearInterval(dispenseInterval);
+            clearInterval(tipRotationInterval);
+            stepLabel.textContent = "✅ Freshly dispensed! Ready to drink.";
+            completeBox.classList.remove('hidden');
         }
+    }, 120);
+}
 
-        // Run consultation directly
-        await submitConsultation();
+/**
+ * Updates the wellness tip card and indicator dots
+ */
+function updateActiveTipDisplay(index) {
+    const tip = WELLNESS_TIPS[index];
+    document.getElementById('tipTitle').textContent = tip.title;
+    document.getElementById('tipBody').textContent = tip.body;
 
-    } catch (err) {
-        console.error("Failed to load preset:", err);
+    // Update indicator dots
+    for (let i = 0; i < WELLNESS_TIPS.length; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (dot) {
+            dot.className = (i === index) ? 'tip-dot active' : 'tip-dot';
+        }
     }
 }
 
-/**
- * Simulate the physical vending machine pouring / dispensing cycle
- */
-function simulateDispense() {
-    const dispenseBtn = document.getElementById('dispenseBtn');
-    const animationBox = document.getElementById('dispenseAnimation');
 
-    dispenseBtn.disabled = true;
-    dispenseBtn.textContent = "⏳ Dispensing in Progress...";
-    animationBox.classList.remove('hidden');
-
-    setTimeout(() => {
-        dispenseBtn.disabled = false;
-        dispenseBtn.textContent = "✅ Fresh Kashaya Ready! (Take Cup)";
-        animationBox.classList.add('hidden');
-        
-        setTimeout(() => {
-            dispenseBtn.textContent = "🚀 Trigger Machine Vending Dispense";
-        }, 4000);
-    }, 2500);
-}
-
-/**
- * Reset form and return to Step 1
- */
-function resetToStep1() {
-    document.getElementById('consultationForm').reset();
-    document.getElementById('realtimeSafetyAlert').classList.add('hidden');
-    document.getElementById('safetyLockoutContainer').classList.add('hidden');
-    document.getElementById('prescriptionResultContainer').classList.add('hidden');
-    goToStep(1);
-}
-
+// ======================================================================================
+// 8. INITIALIZATION ON PAGE LOAD
+// ======================================================================================
+window.addEventListener('DOMContentLoaded', () => {
+    // Render initial questions in background
+    renderQuestions();
+});
