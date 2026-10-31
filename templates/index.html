@@ -152,7 +152,7 @@
                     <div class="input-group">
                         <label>Gender</label>
                         <div class="gender-pills-row">
-                            <button type="button" class="gender-pill active" id="pill-Female" onclick="selectGender('Female')">
+                            <button type="button" class="gender-pill" id="pill-Female" onclick="selectGender('Female')">
                                 👩 Female
                             </button>
                             <button type="button" class="gender-pill" id="pill-Male" onclick="selectGender('Male')">
@@ -162,13 +162,13 @@
                                 Other
                             </button>
                         </div>
-                        <input type="hidden" id="inputGender" value="Female">
+                        <input type="hidden" id="inputGender" value="">
                         <small class="input-hint">Used for physiological baseline screening.</small>
                     </div>
                 </div>
 
                 <!-- Female Considerations (Pregnancy / Lactation) -->
-                <div class="safety-box" id="femaleSafetyBox">
+                <div class="safety-box hidden" id="femaleSafetyBox">
                     <h4>Special Health Considerations</h4>
                     <div class="toggle-group">
                         <label class="toggle-label">
@@ -240,7 +240,7 @@
                     </div>
                     <div class="symptom-chip-grid">
                         <label class="symptom-chip">
-                            <input type="radio" name="symptom_choice" value="Bloating / Gas" checked>
+                            <input type="radio" name="symptom_choice" value="Bloating / Gas">
                             <span class="chip-content">🫧 Bloating / Gas</span>
                         </label>
                         <label class="symptom-chip">
@@ -364,6 +364,11 @@
                         <div class="info-block">
                             <strong>Therapeutic Action:</strong>
                             <p id="resAction">Deeply cooling formulation that pacifies internal heat and soothes acidity.</p>
+                        </div>
+
+                        <div class="info-block">
+                            <strong>Primary Indication:</strong>
+                            <p id="resIndication"></p>
                         </div>
                     </div>
                 </div>

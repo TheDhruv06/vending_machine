@@ -218,15 +218,26 @@ function openKashayaMenu() {
 
 /**
  * Initiates the AI Health Assessment Track:
- * - Resets screening inputs
+ * - Resets screening inputs (no default options selected)
  * - Generates a fresh randomized set of 7 questions (4 core randomized + 3 from pool)
  * - Transitions to Step 1: Screening
  */
 function startAssessment() {
     document.getElementById('inputAge').value = 28;
-    selectGender("Female");
+    
+    // Clear gender selection by default - user must choose!
+    document.getElementById('inputGender').value = "";
+    document.querySelectorAll('.gender-pill').forEach(pill => pill.classList.remove('active'));
+    
+    // Hide female safety box by default
+    const femaleBox = document.getElementById('femaleSafetyBox');
+    if (femaleBox) femaleBox.classList.add('hidden');
+    
     document.getElementById('checkPregnant').checked = false;
     document.getElementById('checkLactating').checked = false;
+
+    // Reset symptom selection - no default symptom!
+    document.querySelectorAll('input[name="symptom_choice"]').forEach(r => r.checked = false);
 
     generateDynamicSevenQuestions();
     navigateTo('screen-screening');
@@ -279,12 +290,13 @@ function generateDynamicSevenQuestions() {
     // 3. Combine to form the exact 7 questions for this user
     activeConsultationQuestions = [...randomizedSet1, ...selected3FromSet2];
 
-    // 4. Render into DOM
+    // 4. Render into DOM with NO pre-selected options
     renderActiveQuestions();
 }
 
 /**
- * Renders the active 7 questions into the UI with clean numbering and options
+ * Renders the active 7 questions into the UI with clean numbering and options.
+ * BY DEFAULT NO OPTIONS ARE SELECTED - THE USER MUST CHOOSE EACH ONE!
  */
 function renderActiveQuestions() {
     const container = document.getElementById('questionsContainer');
@@ -295,11 +307,11 @@ function renderActiveQuestions() {
         card.className = 'question-card-item';
 
         let optionsHtml = '';
-        q.options.forEach((opt, optIndex) => {
-            const isChecked = optIndex === 0 ? 'checked' : '';
+        q.options.forEach((opt) => {
+            // NO 'checked' attribute: all options start unselected
             optionsHtml += `
                 <label class="clean-option-card">
-                    <input type="radio" name="${q.id}" value="${opt.val}" ${isChecked}>
+                    <input type="radio" name="${q.id}" value="${opt.val}">
                     <span class="option-indicator"></span>
                     <span class="option-desc">${opt.text}</span>
                 </label>
@@ -351,7 +363,18 @@ function selectGender(genderVal) {
         activePill.classList.add('active');
     }
 
-    handleGenderChange();
+    const femaleBox = document.getElementById('femaleSafetyBox');
+    if (genderVal === 'Female') {
+        if (femaleBox) femaleBox.classList.remove('hidden');
+    } else {
+        if (femaleBox) {
+            femaleBox.classList.add('hidden');
+            document.getElementById('checkPregnant').checked = false;
+            document.getElementById('checkLactating').checked = false;
+        }
+    }
+
+    evaluateSafetyGate();
 }
 
 function handleGenderChange() {
@@ -360,14 +383,12 @@ function handleGenderChange() {
     const isPregnant = document.getElementById('checkPregnant');
     const isLactating = document.getElementById('checkLactating');
 
-    if (gender === 'Male') {
-        femaleBox.style.opacity = '0.4';
-        femaleBox.style.pointerEvents = 'none';
-        isPregnant.checked = false;
-        isLactating.checked = false;
-    } else {
-        femaleBox.style.opacity = '1';
-        femaleBox.style.pointerEvents = 'auto';
+    if (gender === 'Male' || gender === 'Other') {
+        if (femaleBox) femaleBox.classList.add('hidden');
+        if (isPregnant) isPregnant.checked = false;
+        if (isLactating) isLactating.checked = false;
+    } else if (gender === 'Female') {
+        if (femaleBox) femaleBox.classList.remove('hidden');
     }
     evaluateSafetyGate();
 }
@@ -401,10 +422,16 @@ document.getElementById('inputAge').addEventListener('input', evaluateSafetyGate
 
 function proceedFromScreening() {
     const age = parseInt(document.getElementById('inputAge').value, 10);
+    const gender = document.getElementById('inputGender').value;
     const isPregnant = document.getElementById('checkPregnant').checked;
 
     if (isNaN(age) || age <= 0) {
         alert("Please enter a valid age.");
+        return;
+    }
+
+    if (!gender) {
+        alert("Please select your gender before proceeding.");
         return;
     }
 
@@ -425,7 +452,23 @@ function proceedFromScreening() {
     navigateTo('screen-questions');
 }
 
+/**
+ * Validates that all 7 questions have been answered before moving to symptoms
+ */
 function proceedFromQuestions() {
+    let unansweredCount = 0;
+    activeConsultationQuestions.forEach(q => {
+        const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+        if (!selected) {
+            unansweredCount++;
+        }
+    });
+
+    if (unansweredCount > 0) {
+        alert(`Please answer all 7 questions to proceed (${unansweredCount} remaining).`);
+        return;
+    }
+
     navigateTo('screen-symptoms');
 }
 
@@ -435,20 +478,35 @@ function proceedFromQuestions() {
 // ======================================================================================
 async function submitAssessment() {
     const age = parseInt(document.getElementById('inputAge').value, 10) || 28;
-    const gender = document.getElementById('inputGender').value;
+    const gender = document.getElementById('inputGender').value || "Female";
     const isPregnant = document.getElementById('checkPregnant').checked;
     const isLactating = document.getElementById('checkLactating').checked;
 
-    // Collect answers from the 7 questions currently active on screen
+    // Verify all 7 questions are answered
     const answers = {};
+    let unansweredCount = 0;
     activeConsultationQuestions.forEach(q => {
         const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-        answers[q.id] = selected ? parseInt(selected.value, 10) : 0;
+        if (selected) {
+            answers[q.id] = parseInt(selected.value, 10);
+        } else {
+            unansweredCount++;
+        }
     });
 
-    // Collect selected symptom
+    if (unansweredCount > 0) {
+        alert("Please complete all questions before submitting.");
+        navigateTo('screen-questions');
+        return;
+    }
+
+    // Verify a symptom is chosen
     const symRadio = document.querySelector('input[name="symptom_choice"]:checked');
-    const selectedSymptom = symRadio ? symRadio.value : "Bloating / Gas";
+    if (!symRadio) {
+        alert("Please tap a symptom to choose your health focus.");
+        return;
+    }
+    const selectedSymptom = symRadio.value;
 
     const payload = {
         age: age,
@@ -479,7 +537,7 @@ async function submitAssessment() {
         }
     } catch (e) {
         console.error("API error:", e);
-        alert("Failed to connect to the Ayurveda Engine.");
+        alert("Failed to connect to the Ayurveda Engine. Please verify server connection.");
     }
 }
 
@@ -487,28 +545,37 @@ async function submitAssessment() {
 // ======================================================================================
 // 6. ASSESSMENT STEP 4: RESULT PAGE
 // ======================================================================================
+function setTextSafely(elementId, textValue) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        el.textContent = textValue || "";
+    }
+}
+
 function populateResultScreen(data) {
     const diag = data.diagnosis;
     const presc = data.prescription;
 
-    document.getElementById('resConstitution').textContent = diag.prakriti_label;
-    document.getElementById('resMetabolism').textContent = diag.agni.type;
-    document.getElementById('resSelectedSymptom').textContent = diag.selected_symptom;
+    setTextSafely('resConstitution', diag.prakriti_label);
+    setTextSafely('resMetabolism', diag.agni.type);
+    setTextSafely('resSelectedSymptom', diag.selected_symptom);
 
-    document.getElementById('resTeaCode').textContent = presc.tea_code;
-    document.getElementById('resDrinkName').textContent = presc.tea_name;
-    document.getElementById('resCategory').textContent = presc.category;
-    document.getElementById('resAction').textContent = presc.clinical_action;
-    document.getElementById('resIndication').textContent = presc.primary_indication;
+    setTextSafely('resTeaCode', presc.tea_code);
+    setTextSafely('resDrinkName', presc.tea_name);
+    setTextSafely('resCategory', presc.category);
+    setTextSafely('resAction', presc.clinical_action);
+    setTextSafely('resIndication', presc.primary_indication);
 
     const ingList = document.getElementById('resIngredientsList');
-    ingList.innerHTML = '';
-    presc.ingredients.forEach(ing => {
-        const chip = document.createElement('span');
-        chip.className = 'ingredient-pill';
-        chip.textContent = ing;
-        ingList.appendChild(chip);
-    });
+    if (ingList) {
+        ingList.innerHTML = '';
+        presc.ingredients.forEach(ing => {
+            const chip = document.createElement('span');
+            chip.className = 'ingredient-pill';
+            chip.textContent = ing;
+            ingList.appendChild(chip);
+        });
+    }
 
     currentDispensingDrink = {
         name: presc.tea_name,
