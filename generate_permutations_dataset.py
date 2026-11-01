@@ -34,6 +34,7 @@ from ayurveda_engine import (
     RECOMMENDATION_MATRIX,
     SYMPTOMS_CATALOG,
     TEA_CATALOG,
+    CONSTITUTIONAL_MAINTENANCE_DETAILS,
     SET_1_CORE_QUESTIONS,
     SET_2_QUESTION_POOL
 )
@@ -133,6 +134,13 @@ def generate_all_datasets():
             tea_code = RECOMMENDATION_MATRIX.get((dom_prakriti, sym_name), "Tea A")
             tea_spec = TEA_CATALOG.get(tea_code, TEA_CATALOG["Tea A"])
 
+            # Use tailored Swasthavritta maintenance action for No Issue consultations
+            if sym_name == "No Issue / I am Fine":
+                const_spec = CONSTITUTIONAL_MAINTENANCE_DETAILS.get(dom_prakriti, CONSTITUTIONAL_MAINTENANCE_DETAILS["VPK"])
+                clinical_action = const_spec["action"]
+            else:
+                clinical_action = tea_spec["action"]
+
             full_rows.append({
                 "Row_ID": row_counter,
                 "Profile_ID": prof["vector_id"],
@@ -155,7 +163,7 @@ def generate_all_datasets():
                 "Recommended_Tea_Name": tea_spec["name"],
                 "Tea_Category": tea_spec["category"],
                 "Herbal_Ingredients": ", ".join(tea_spec["ingredients"]),
-                "Clinical_Action": tea_spec["action"],
+                "Clinical_Action": clinical_action,
                 "Doctor_Verdict": "APPROVED",
                 "Doctor_Corrected_Tea": "",
                 "Doctor_Clinical_Notes": ""
@@ -164,8 +172,8 @@ def generate_all_datasets():
 
     df_full = pd.DataFrame(full_rows)
 
-    # 2. Build the 77 Decision Rules Table
-    rules_77 = []
+    # 2. Build the 84 Decision Rules Table (7 Prakritis x 12 Symptoms)
+    rules_84 = []
     for (prakriti, symptom), tea_code in RECOMMENDATION_MATRIX.items():
         tea_spec = TEA_CATALOG.get(tea_code)
         # Find category
@@ -185,7 +193,13 @@ def generate_all_datasets():
             "VPK": "Tridosha Balanced"
         }
 
-        rules_77.append({
+        if symptom == "No Issue / I am Fine":
+            const_spec = CONSTITUTIONAL_MAINTENANCE_DETAILS.get(prakriti, CONSTITUTIONAL_MAINTENANCE_DETAILS["VPK"])
+            action_text = const_spec["action"]
+        else:
+            action_text = tea_spec["action"]
+
+        rules_84.append({
             "Prakriti_Code": prakriti,
             "Prakriti_Name": prakriti_names.get(prakriti, prakriti),
             "Symptom_Category": sym_category,
@@ -194,10 +208,10 @@ def generate_all_datasets():
             "Prescribed_Tea_Name": tea_spec["name"],
             "Category_Description": tea_spec["category"],
             "Herbal_Ingredients": ", ".join(tea_spec["ingredients"]),
-            "Therapeutic_Action": tea_spec["action"],
+            "Therapeutic_Action": action_text,
             "Doctor_Validation": "VALIDATED"
         })
-    df_rules = pd.DataFrame(rules_77)
+    df_rules = pd.DataFrame(rules_84)
 
     # 3. Build Unique 2,916 Question Profiles Table
     unique_profiles_rows = []
@@ -244,19 +258,20 @@ def generate_all_datasets():
     df_full.to_csv(csv_filename, index=False, encoding="utf-8")
     print(f"CSV exported successfully ({os.path.getsize(csv_filename) / 1024 / 1024:.2f} MB).")
 
-    matrix_csv_filename = "ayurveda_77_decision_matrix.csv"
-    print(f"Exporting 77 decision rules to {matrix_csv_filename}...")
+    matrix_csv_filename = "ayurveda_84_decision_matrix.csv"
+    print(f"Exporting 84 decision rules to {matrix_csv_filename}...")
     df_rules.to_csv(matrix_csv_filename, index=False, encoding="utf-8")
+    df_rules.to_csv("ayurveda_77_decision_matrix.csv", index=False, encoding="utf-8")
 
     # Export Styled Excel Workbook with openpyxl
     excel_filename = "ayurveda_model_permutations.xlsx"
     print(f"Exporting styled Excel workbook to {excel_filename}...")
 
     with pd.ExcelWriter(excel_filename, engine="openpyxl") as writer:
-        df_rules.to_excel(writer, sheet_name="The_77_Decision_Rules", index=False)
+        df_rules.to_excel(writer, sheet_name="The_84_Decision_Rules", index=False)
         df_profiles.to_excel(writer, sheet_name="2916_Question_Profiles", index=False)
         df_teas.to_excel(writer, sheet_name="Tea_Formulations_Catalog", index=False)
-        df_full.to_excel(writer, sheet_name="All_32076_Permutations", index=False)
+        df_full.to_excel(writer, sheet_name="All_34992_Permutations", index=False)
 
     # Style the Excel Workbook
     wb = openpyxl.load_workbook(excel_filename)
@@ -273,7 +288,7 @@ def generate_all_datasets():
 
     for sheet_name in wb.sheetnames:
         ws = wb[sheet_name]
-        is_rules_sheet = (sheet_name == "The_77_Decision_Rules")
+        is_rules_sheet = ("Decision_Rules" in sheet_name)
         
         # Style headers
         for col_idx in range(1, ws.max_column + 1):

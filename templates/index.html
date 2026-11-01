@@ -32,53 +32,50 @@
         </header>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 1: WELCOME SCREEN (3 PRIMARY BUTTONS)                      -->
+        <!-- SCREEN 1: WELCOME SCREEN (2 PRIMARY SIDEWAYS BUTTONS)              -->
         <!-- ================================================================= -->
         <section id="screen-welcome" class="screen active">
             <div class="welcome-hero">
-                <span class="hero-badge">Welcome to Soil Veda</span>
+                <span class="hero-badge">🌿 Welcome to Soil Veda</span>
                 <h2 class="hero-heading">How would you like your beverage prepared today?</h2>
-                <p class="hero-subtext">Tap an option below to start your drink preparation:</p>
+                <p class="hero-subtext">Choose your track below to begin your personalized drink preparation:</p>
             </div>
 
-            <div class="welcome-options-grid">
+            <div class="welcome-options-grid sideways-grid">
                 <!-- OPTION 1: TAKE ASSESSMENT -->
                 <button type="button" class="kiosk-choice-card primary-choice" onclick="startAssessment()">
-                    <div class="choice-icon-wrap">
-                        <span class="choice-icon">🌿</span>
+                    <div class="choice-top-row">
+                        <div class="choice-icon-wrap emerald-icon-wrap">
+                            <span class="choice-icon">🌿</span>
+                        </div>
+                        <span class="choice-tag emerald-tag">Personalized AI Assessment</span>
                     </div>
-                    <div class="choice-text">
-                        <span class="choice-tag">Personalized AI Assessment</span>
+                    <div class="choice-body">
                         <h3>Take Health Assessment</h3>
-                        <p>Answer 7 quick questions to discover your body constitution and get a customized herbal brew.</p>
+                        <p>Answer 7 quick questions to evaluate your Prakriti & Agni and receive a customized doctor-formulated herbal brew.</p>
                     </div>
-                    <div class="choice-arrow">&rarr;</div>
+                    <div class="choice-cta-row">
+                        <span class="choice-cta-text">Start Assessment</span>
+                        <span class="choice-arrow">&rarr;</span>
+                    </div>
                 </button>
 
                 <!-- OPTION 2: REGULAR TEA -->
-                <button type="button" class="kiosk-choice-card" onclick="startDirectDispense('Regular Tea', 'Classic Fresh Brewed Tea', 'Freshly brewed hot chai with ginger & cardamom.')">
-                    <div class="choice-icon-wrap">
-                        <span class="choice-icon">☕</span>
+                <button type="button" class="kiosk-choice-card regular-tea-choice" onclick="startDirectDispense('Regular Tea', 'Classic Fresh Brewed Tea', 'Freshly brewed hot chai with ginger & cardamom.')">
+                    <div class="choice-top-row">
+                        <div class="choice-icon-wrap amber-icon-wrap">
+                            <span class="choice-icon">☕</span>
+                        </div>
+                        <span class="choice-tag amber-tag">Instant Quick Brew</span>
                     </div>
-                    <div class="choice-text">
-                        <span class="choice-tag">Instant Brew</span>
+                    <div class="choice-body">
                         <h3>Regular Tea</h3>
-                        <p>Classic freshly brewed hot tea infused with gentle aromatic Indian spices.</p>
+                        <p>Classic freshly brewed hot herbal tea infused with gentle aromatic Indian spices. Instant dispense with no assessment.</p>
                     </div>
-                    <div class="choice-arrow">&rarr;</div>
-                </button>
-
-                <!-- OPTION 3: KASHAYA (OPENS KASHAYA A, B, C SELECTION) -->
-                <button type="button" class="kiosk-choice-card" onclick="openKashayaMenu()">
-                    <div class="choice-icon-wrap">
-                        <span class="choice-icon">🍵</span>
+                    <div class="choice-cta-row">
+                        <span class="choice-cta-text">Dispense Regular Tea</span>
+                        <span class="choice-arrow">&rarr;</span>
                     </div>
-                    <div class="choice-text">
-                        <span class="choice-tag">Standard Decoctions</span>
-                        <h3>Kashaya (A, B, C)</h3>
-                        <p>Select from Kashaya A, Kashaya B, or Kashaya C prepared according to classical Kwatha principles.</p>
-                    </div>
-                    <div class="choice-arrow">&rarr;</div>
                 </button>
             </div>
         </section>
@@ -232,6 +229,27 @@
             </div>
 
             <div class="symptom-deck">
+                <!-- 0. GENERAL WELLNESS & SWASTHYA (NO ACUTE ISSUES) -->
+                <div class="symptom-group-card wellness-card-highlight">
+                    <div class="group-title">
+                        <span class="group-icon">🌿</span>
+                        <span>General Wellness & Balance</span>
+                        <span class="wellness-subtag">✨ Daily Health Maintenance</span>
+                    </div>
+                    <div class="symptom-chip-grid single-wellness-grid">
+                        <label class="symptom-chip wellness-chip">
+                            <input type="radio" name="symptom_choice" value="No Issue / I am Fine">
+                            <span class="chip-content wellness-content">
+                                <span class="wellness-icon">✨</span>
+                                <span class="wellness-texts">
+                                    <strong class="wellness-main">No Issues / I'm Feeling Fine</strong>
+                                    <span class="wellness-desc">No acute aches or digestive discomfort — formulate a daily balancing herbal tonic tailored to my natural Prakriti & Agni</span>
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- STOMACH / DIGESTION -->
                 <div class="symptom-group-card">
                     <div class="group-title">

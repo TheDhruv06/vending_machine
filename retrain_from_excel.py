@@ -28,7 +28,14 @@ def audit_and_retrain(file_path: str = "ayurveda_model_permutations.xlsx"):
 
     print(f"Loading '{file_path}' for audit & retraining analysis...")
     if file_path.endswith(".xlsx"):
-        df = pd.read_excel(file_path, sheet_name="All_32076_Permutations")
+        xl = pd.ExcelFile(file_path)
+        sheet_to_load = None
+        for s in xl.sheet_names:
+            if "Permutations" in s:
+                sheet_to_load = s
+                break
+        sheet_to_load = sheet_to_load or xl.sheet_names[-1]
+        df = pd.read_excel(file_path, sheet_name=sheet_to_load)
     else:
         df = pd.read_csv(file_path)
 
@@ -46,10 +53,10 @@ def audit_and_retrain(file_path: str = "ayurveda_model_permutations.xlsx"):
     print(f"Flagged / Overridden Permutations: {flagged_count}")
 
     if flagged_count == 0:
-        print("\nAll 32,076 responses currently hold the 'APPROVED' baseline status.")
+        print(f"\nAll {total_rows:,} responses currently hold the 'APPROVED' baseline status.")
         print("To flag an incorrect result:")
         print("  1. Open 'ayurveda_model_permutations.xlsx'")
-        print("  2. In sheet 'All_32076_Permutations', find the disputed row(s)")
+        print(f"  2. In sheet '{sheet_to_load}', find the disputed row(s)")
         print("  3. Set 'Doctor_Verdict' = 'WRONG'")
         print("  4. Set 'Doctor_Corrected_Tea' = 'Tea B' (or desired tea)")
         print("  5. Enter explanation in 'Doctor_Clinical_Notes'")

@@ -503,7 +503,7 @@ async function submitAssessment() {
     // Verify a symptom is chosen
     const symRadio = document.querySelector('input[name="symptom_choice"]:checked');
     if (!symRadio) {
-        alert("Please tap a symptom to choose your health focus.");
+        alert("Please tap your health focus or select 'No Issues / I'm Feeling Fine'.");
         return;
     }
     const selectedSymptom = symRadio.value;

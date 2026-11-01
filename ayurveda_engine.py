@@ -315,6 +315,9 @@ def calculate_prakriti_and_agni(answers: Dict[str, Any]) -> Dict[str, Any]:
 # 4. VIKRITI (SYMPTOM MENU) DEFINITION
 # ======================================================================================
 SYMPTOMS_CATALOG = {
+    "General Wellness": [
+        "No Issue / I am Fine"
+    ],
     "Stomach": [
         "Bloating / Gas",
         "Acidity / Burning",
@@ -394,12 +397,13 @@ TEA_CATALOG = {
 
 
 # ======================================================================================
-# 6. EXACT 77 PERMUTATIONS & COMBINATIONS MATRIX
+# 6. EXACT 84 PERMUTATIONS & COMBINATIONS MATRIX (7 Prakritis x 12 Symptom States)
 # ======================================================================================
-# As defined in the official specification document:
-# 7 Prakriti states (V, P, K, VP, PK, VK, VPK) x 11 Symptoms = 77 exact mappings
+# As defined in the clinical specification document:
+# 7 Prakriti states (V, P, K, VP, PK, VK, VPK) x 12 Symptoms (11 Acute + 1 General Wellness) = 84 exact mappings
 RECOMMENDATION_MATRIX = {
     # ------------------ VATA (V) DOMINANT ------------------
+    ("V", "No Issue / I am Fine"): "Tea A",
     ("V", "Bloating / Gas"): "Tea A",
     ("V", "Acidity / Burning"): "Tea B",
     ("V", "Heavy Stomach"): "Tea A",
@@ -413,6 +417,7 @@ RECOMMENDATION_MATRIX = {
     ("V", "Low Immunity"): "Tea E",
 
     # ------------------ PITTA (P) DOMINANT ------------------
+    ("P", "No Issue / I am Fine"): "Tea B",
     ("P", "Bloating / Gas"): "Tea A",
     ("P", "Acidity / Burning"): "Tea B",
     ("P", "Heavy Stomach"): "Tea C",
@@ -426,6 +431,7 @@ RECOMMENDATION_MATRIX = {
     ("P", "Low Immunity"): "Tea E",
 
     # ------------------ KAPHA (K) DOMINANT ------------------
+    ("K", "No Issue / I am Fine"): "Tea C",
     ("K", "Bloating / Gas"): "Tea C",
     ("K", "Acidity / Burning"): "Tea B",
     ("K", "Heavy Stomach"): "Tea C",
@@ -439,6 +445,7 @@ RECOMMENDATION_MATRIX = {
     ("K", "Low Immunity"): "Tea E",
 
     # ------------------ VATA-PITTA (VP) DUAL ------------------
+    ("VP", "No Issue / I am Fine"): "Tea A",
     ("VP", "Bloating / Gas"): "Tea A",
     ("VP", "Acidity / Burning"): "Tea B",
     ("VP", "Heavy Stomach"): "Tea A",
@@ -452,6 +459,7 @@ RECOMMENDATION_MATRIX = {
     ("VP", "Low Immunity"): "Tea E",
 
     # ------------------ PITTA-KAPHA (PK) DUAL ------------------
+    ("PK", "No Issue / I am Fine"): "Tea B",
     ("PK", "Bloating / Gas"): "Tea C",
     ("PK", "Acidity / Burning"): "Tea B",
     ("PK", "Heavy Stomach"): "Tea C",
@@ -465,6 +473,7 @@ RECOMMENDATION_MATRIX = {
     ("PK", "Low Immunity"): "Tea E",
 
     # ------------------ VATA-KAPHA (VK) DUAL ------------------
+    ("VK", "No Issue / I am Fine"): "Tea C",
     ("VK", "Bloating / Gas"): "Tea A",
     ("VK", "Acidity / Burning"): "Tea B",
     ("VK", "Heavy Stomach"): "Tea C",
@@ -478,6 +487,7 @@ RECOMMENDATION_MATRIX = {
     ("VK", "Low Immunity"): "Tea E",
 
     # ------------------ TRIDOSHA (VPK) BALANCED ------------------
+    ("VPK", "No Issue / I am Fine"): "Tea E",
     ("VPK", "Bloating / Gas"): "Tea A",
     ("VPK", "Acidity / Burning"): "Tea B",
     ("VPK", "Heavy Stomach"): "Tea C",
@@ -489,6 +499,41 @@ RECOMMENDATION_MATRIX = {
     ("VPK", "Cold / Allergies"): "Tea F",
     ("VPK", "Cough / Congestion"): "Tea F",
     ("VPK", "Low Immunity"): "Tea E"
+}
+
+
+# ======================================================================================
+# CONSTITUTIONAL WELLNESS DETAILS (FOR USERS WITH NO ACUTE ISSUES / SWASTHAVRITTA)
+# ======================================================================================
+CONSTITUTIONAL_MAINTENANCE_DETAILS = {
+    "V": {
+        "action": "Vata-Shamana & Nervous Grounding. Delivers gentle carminative warmth to stabilize erratic Vata, nourishes nervous tissues, and sustains smooth, calm digestion.",
+        "indication": "Daily wellness for Vata constitution: Maintains grounded vitality, internal calm, and smooth digestive balance without acute ailments."
+    },
+    "P": {
+        "action": "Pitta-Shamana & Cardiotonic Cooling. Gently cools intrinsic metabolic heat, protects cardiovascular vitality, and maintains clear, balanced enzymatic activity.",
+        "indication": "Daily wellness for Pitta constitution: Maintains cool composure, vascular health, and steady metabolic equilibrium without acute inflammation."
+    },
+    "K": {
+        "action": "Deepana-Pachana & Kapha-Shamana. Ignites metabolic Agni, prevents sluggishness, clears lymphatic channels, and keeps energy vibrant and light.",
+        "indication": "Daily wellness for Kapha constitution: Maintains active metabolism, cellular lightness, and sustained daily stamina without congestion."
+    },
+    "VP": {
+        "action": "Dual-Dosha Harmonization. Gentle carminative warmth that pacifies erratic Vata while remaining cooling and soothing for sensitive Pitta.",
+        "indication": "Daily wellness for Vata-Pitta constitution: Balances digestive rhythm, soothes nervous tension, and refreshes the mind."
+    },
+    "PK": {
+        "action": "Pitta-Kapha Equilibrium. Cardiotonic cooling that clears metabolic stagnation while preserving steady enzymatic fire.",
+        "indication": "Daily wellness for Pitta-Kapha constitution: Sustains clean circulation, metabolic harmony, and calm vigor."
+    },
+    "VK": {
+        "action": "Ushna-Virya Warming & Metabolism Boost. Dispels internal coldness, boosts digestive fire, and keeps energy uplifted and grounded.",
+        "indication": "Daily wellness for Vata-Kapha constitution: Counteracts cold tendencies, prevents lethargy, and enhances circulation."
+    },
+    "VPK": {
+        "action": "Universal Rasayana & Dhatu Poshaka. Delivers comprehensive cellular nutrition, fortifies all 7 bodily tissues, and elevates Ojas (vital immunity).",
+        "indication": "Daily wellness for Sama Dosha (Balanced): Universal rejuvenation, immune fortification, and all-day natural vitality."
+    }
 }
 
 
@@ -533,9 +578,25 @@ def evaluate_user_consultation(payload: Dict[str, Any]) -> Dict[str, Any]:
     dominant_prakriti = prakriti_result["dominant_prakriti"]
 
     # Step 3: Vikriti (Symptom) & Recommendation Matrix Lookup
-    selected_symptom = payload.get("selected_symptom", "Bloating / Gas")
+    raw_symptom = payload.get("selected_symptom", "Bloating / Gas")
     
-    # Retrieve recommended tea from matrix
+    # Normalize general wellness / no issue choices
+    if str(raw_symptom).strip() in [
+        "No Issue / I am Fine",
+        "No Issue / Feeling Healthy",
+        "No Issues / I'm Feeling Fine",
+        "No Issues / I am Fine",
+        "No Issue",
+        "None",
+        "Healthy Baseline",
+        "I am fine",
+        "i am fine"
+    ]:
+        selected_symptom = "No Issue / I am Fine"
+    else:
+        selected_symptom = raw_symptom
+    
+    # Retrieve recommended tea from matrix (84 combinations)
     tea_code = RECOMMENDATION_MATRIX.get((dominant_prakriti, selected_symptom))
     
     # Fallback safety default if unmatched
@@ -543,6 +604,18 @@ def evaluate_user_consultation(payload: Dict[str, Any]) -> Dict[str, Any]:
         tea_code = "Tea A"
 
     tea_details = TEA_CATALOG.get(tea_code, TEA_CATALOG["Tea A"])
+
+    # If user has no acute symptoms, tailor clinical action and indication for constitutional maintenance (Swasthavritta)
+    if selected_symptom == "No Issue / I am Fine":
+        const_info = CONSTITUTIONAL_MAINTENANCE_DETAILS.get(
+            dominant_prakriti, 
+            CONSTITUTIONAL_MAINTENANCE_DETAILS["VPK"]
+        )
+        clinical_action = const_info["action"]
+        primary_indication = const_info["indication"]
+    else:
+        clinical_action = tea_details["action"]
+        primary_indication = tea_details["indication"]
 
     # Step 4: Construct Full Prescriptive Output
     return {
@@ -566,8 +639,8 @@ def evaluate_user_consultation(payload: Dict[str, Any]) -> Dict[str, Any]:
             "tea_name": tea_details["name"],
             "category": tea_details["category"],
             "ingredients": tea_details["ingredients"],
-            "clinical_action": tea_details["action"],
-            "primary_indication": tea_details["indication"],
+            "clinical_action": clinical_action,
+            "primary_indication": primary_indication,
             "vending_instructions": {
                 "ratio": "1 Part Powder : 16 Parts Water (Standard Kashaya decoction)",
                 "boiling_cycle": "Reduced to 1/4th volume in boiler",

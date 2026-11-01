@@ -251,63 +251,96 @@ body {
 }
 
 .welcome-options-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 28px 0 24px 0;
+}
+
+@media (max-width: 768px) {
+    .welcome-options-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
 
 .kiosk-choice-card {
     display: flex;
-    align-items: center;
-    gap: 24px;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
     background: #ffffff;
     border: 2px solid var(--border-soft);
-    border-radius: var(--radius-md);
-    padding: 24px 28px;
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
     cursor: pointer;
     text-align: left;
-    transition: all 0.22s ease;
-    box-shadow: var(--shadow-soft);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     font-family: inherit;
     position: relative;
     overflow: hidden;
+    min-height: 270px;
+    gap: 20px;
 }
 
 .kiosk-choice-card:hover {
     border-color: var(--primary-light);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
-    background: #fafdfb;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(34, 112, 62, 0.12);
 }
 
 .kiosk-choice-card.primary-choice {
-    background: linear-gradient(135deg, #ffffff 0%, #f3f9f5 100%);
-    border-color: var(--primary-light);
+    background: linear-gradient(145deg, #ffffff 0%, #f1f8f3 100%);
+    border-color: #8ac99d;
     border-width: 2.5px;
 }
 
 .kiosk-choice-card.primary-choice:hover {
-    background: linear-gradient(135deg, #ffffff 0%, #eaf5ee 100%);
+    border-color: var(--primary);
+    background: linear-gradient(145deg, #ffffff 0%, #e6f4ea 100%);
+}
+
+.kiosk-choice-card.regular-tea-choice {
+    background: linear-gradient(145deg, #ffffff 0%, #fff9f2 100%);
+    border-color: #e8c9a8;
+    border-width: 2.5px;
+}
+
+.kiosk-choice-card.regular-tea-choice:hover {
+    border-color: #c77b31;
+    background: linear-gradient(145deg, #ffffff 0%, #fef3e3 100%);
+}
+
+.choice-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .choice-icon-wrap {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: var(--primary-soft);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.choice-icon {
-    font-size: 32px;
+.choice-icon-wrap.emerald-icon-wrap {
+    background: #d4edd9;
+    border: 1.5px solid #a3d9b4;
 }
 
-.choice-text {
-    flex: 1;
+.choice-icon-wrap.amber-icon-wrap {
+    background: #fdecd8;
+    border: 1.5px solid #f9cca4;
+}
+
+.choice-icon {
+    font-size: 30px;
 }
 
 .choice-tag {
@@ -315,35 +348,68 @@ body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: var(--primary);
-    background: var(--primary-soft);
-    padding: 2px 10px;
+    padding: 4px 12px;
     border-radius: var(--radius-full);
-    display: inline-block;
-    margin-bottom: 6px;
 }
 
-.choice-text h3 {
-    font-size: 20px;
+.choice-tag.emerald-tag {
+    color: var(--primary-dark);
+    background: #d4edd9;
+    border: 1px solid #b7e3c2;
+}
+
+.choice-tag.amber-tag {
+    color: #9c5513;
+    background: #fdecd8;
+    border: 1px solid #f9cca4;
+}
+
+.choice-body h3 {
+    font-size: 24px;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
 }
 
-.choice-text p {
+.choice-body p {
     font-size: 14px;
+    line-height: 1.55;
     color: var(--text-muted);
 }
 
-.choice-arrow {
-    font-size: 24px;
+.choice-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border-soft);
+    margin-top: auto;
+}
+
+.choice-cta-text {
+    font-size: 15px;
     font-weight: 700;
+    color: var(--primary);
+}
+
+.regular-tea-choice .choice-cta-text {
+    color: #b8621b;
+}
+
+.choice-arrow {
+    font-size: 22px;
+    font-weight: 800;
     color: var(--primary);
     transition: transform 0.2s ease;
 }
 
+.regular-tea-choice .choice-arrow {
+    color: #b8621b;
+}
+
 .kiosk-choice-card:hover .choice-arrow {
-    transform: translateX(4px);
+    transform: translateX(6px);
 }
 
 /* ==========================================================================
@@ -727,24 +793,36 @@ body {
 
 .clean-options-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 640px) {
+    .clean-options-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .clean-option-card {
     display: flex;
-    align-items: center;
-    padding: 14px 18px;
-    border: 1.5px solid var(--border-soft);
+    align-items: flex-start;
+    padding: 16px 18px;
+    border: 2px solid var(--border-soft);
     background: #ffffff;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    min-height: 80px;
+    gap: 12px;
 }
 
 .clean-option-card:hover {
     border-color: var(--primary-light);
-    background: var(--primary-soft);
+    background: #f7fbf8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(34, 112, 62, 0.08);
 }
 
 .clean-option-card input[type="radio"] {
@@ -752,30 +830,113 @@ body {
 }
 
 .option-indicator {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 2px solid var(--border-soft);
-    margin-right: 14px;
+    border: 2px solid #b7c7bc;
+    margin-top: 2px;
     flex-shrink: 0;
     transition: all 0.2s ease;
+    background: #ffffff;
 }
 
 .clean-option-card input[type="radio"]:checked ~ .option-indicator {
     border-color: var(--primary);
     background: var(--primary);
-    box-shadow: inset 0 0 0 3px #ffffff;
+    box-shadow: inset 0 0 0 3.5px #ffffff;
 }
 
 .clean-option-card:has(input[type="radio"]:checked) {
     border-color: var(--primary);
-    background: var(--primary-soft);
+    background: linear-gradient(145deg, #ffffff 0%, #edf7f0 100%);
+    box-shadow: 0 4px 14px rgba(34, 112, 62, 0.12);
 }
 
 .option-desc {
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.45;
     color: var(--text-main);
+}
+
+/* ==========================================================================
+   WELLNESS & SWASTHYA HIGHLIGHT CARD (NO ACUTE SYMPTOMS)
+   ========================================================================== */
+.wellness-card-highlight {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9f3 100%);
+    border: 2px solid #82c499;
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(34, 112, 62, 0.07);
+}
+
+.wellness-subtag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1b6338;
+    background: #d4edd9;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    margin-left: auto;
+}
+
+.single-wellness-grid {
+    grid-template-columns: 1fr !important;
+}
+
+.symptom-chip.wellness-chip {
+    padding: 16px 20px;
+    background: #ffffff;
+    border: 2px solid #a3d9b4;
+    border-radius: var(--radius-md);
+    transition: all 0.22s ease;
+    cursor: pointer;
+}
+
+.symptom-chip.wellness-chip:hover {
+    border-color: var(--primary);
+    background: #edf8f1;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(34, 112, 62, 0.12);
+}
+
+.symptom-chip.wellness-chip:has(input[type="radio"]:checked) {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #e4f4ea 0%, #d1ecd9 100%);
+    box-shadow: 0 6px 20px rgba(34, 112, 62, 0.18);
+}
+
+.wellness-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.wellness-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.wellness-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+}
+
+.wellness-main {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.wellness-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    line-height: 1.4;
 }
 
 /* ==========================================================================
