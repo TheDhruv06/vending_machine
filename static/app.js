@@ -318,12 +318,14 @@ function renderActiveQuestions() {
             `;
         });
 
+        const gridClass = q.options.length === 4 ? 'clean-options-grid grid-2x2' : 'clean-options-grid grid-3';
+
         card.innerHTML = `
             <div class="q-title-row">
                 <span class="q-number">${index + 1}</span>
                 <span class="q-question-text">${q.question}</span>
             </div>
-            <div class="clean-options-grid">
+            <div class="${gridClass}">
                 ${optionsHtml}
             </div>
         `;

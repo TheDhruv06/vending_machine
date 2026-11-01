@@ -793,12 +793,22 @@ body {
 
 .clean-options-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 14px;
 }
 
-@media (max-width: 640px) {
-    .clean-options-grid {
+/* 3-option questions: 3 columns in a single horizontal row */
+.clean-options-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* 4-option questions (e.g. Appetite & Agni): 2 options then 2 options (2x2 symmetrical grid) */
+.clean-options-grid.grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 820px) {
+    .clean-options-grid.grid-3,
+    .clean-options-grid.grid-2x2 {
         grid-template-columns: 1fr;
     }
 }
@@ -816,6 +826,8 @@ body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     min-height: 80px;
     gap: 12px;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .clean-option-card:hover {
