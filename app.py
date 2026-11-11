@@ -8,6 +8,7 @@ Ayurvedic Prakriti, Agni, and Tea Recommendation Model.
 """
 
 import os
+import time
 from flask import Flask, render_template, request, jsonify
 from ayurveda_engine import (
     SET_1_CORE_QUESTIONS,
@@ -220,6 +221,113 @@ def get_preset(preset_id):
     if preset_id in PRESET_PROFILES:
         return jsonify({"success": True, "profile": PRESET_PROFILES[preset_id]})
     return jsonify({"success": False, "error": "Preset profile not found"}), 404
+
+
+# ======================================================================================
+# ESP32 HARDWARE DISPENSER QUEUE & BRIDGING ENDPOINTS
+# ======================================================================================
+DISPENSE_QUEUE = []
+DISPENSE_HISTORY = []
+JOB_COUNTER = 0
+
+TEA_TO_CONTAINER_MAP = {
+    "Tea A": 1,        # Lemongrass Sip / Container 1
+    "Tea B": 2,        # Vital Sip / Container 2
+    "Tea C": 3,        # MedoHar Sip / Container 3
+    "Tea D": 4,        # Mangalayu Tea / Container 4
+    "Tea E": 1,        # Moringa Sip / Container 1 (or 5 if equipped)
+    "Tea F": 2,        # Green Sip / Container 2 (or 6 if equipped)
+    "Regular Tea": 4,  # Standard Instant Tea / Container 4
+    "Kashaya A": 1,
+    "Kashaya B": 2,
+    "Kashaya C": 3,
+}
+
+@app.route("/api/dispense", methods=["POST"])
+def queue_dispense():
+    """
+    Called by the Web UI when user clicks 'Dispense'.
+    Pushes a new hardware dispense job into the ESP32 queue.
+    """
+    global JOB_COUNTER
+    try:
+        data = request.get_json(force=True) or {}
+        tea_code = data.get("tea_code", "")
+        drink_name = data.get("drink_name", "Herbal Beverage")
+
+        # Determine target container ID
+        container_id = data.get("container_id")
+        if not container_id:
+            container_id = TEA_TO_CONTAINER_MAP.get(tea_code, TEA_TO_CONTAINER_MAP.get(drink_name, 1))
+
+        JOB_COUNTER += 1
+        job = {
+            "job_id": JOB_COUNTER,
+            "tea_code": tea_code,
+            "drink_name": drink_name,
+            "container_id": int(container_id),
+            "duration_ms": int(data.get("duration_ms", 2500)),
+            "status": "PENDING",
+            "timestamp": time.time()
+        }
+
+        DISPENSE_QUEUE.append(job)
+        return jsonify({
+            "success": True,
+            "message": f"Dispense job #{job['job_id']} queued for Container {job['container_id']} ({drink_name})",
+            "job": job
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route("/api/dispense/poll", methods=["GET"])
+def poll_dispense():
+    """
+    Called periodically by ESP32 over WiFi (e.g. every 1000ms).
+    Returns the oldest pending job for the hardware to dispense.
+    """
+    for job in DISPENSE_QUEUE:
+        if job["status"] == "PENDING":
+            job["status"] = "IN_PROGRESS"
+            return jsonify({
+                "has_job": True,
+                "job": job
+            })
+    return jsonify({
+        "has_job": False,
+        "job": None
+    })
+
+
+@app.route("/api/dispense/complete", methods=["POST"])
+def complete_dispense():
+    """
+    Called by ESP32 after running the BO motor to confirm dispensing is complete.
+    """
+    try:
+        data = request.get_json(force=True) or {}
+        job_id = int(data.get("job_id", 0))
+        for job in list(DISPENSE_QUEUE):
+            if job["job_id"] == job_id:
+                job["status"] = "COMPLETED"
+                DISPENSE_HISTORY.append(job)
+                DISPENSE_QUEUE.remove(job)
+                return jsonify({"success": True, "message": f"Job #{job_id} completed successfully"})
+        return jsonify({"success": True, "message": "Job acknowledged"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route("/api/dispense/status", methods=["GET"])
+def dispense_status():
+    """Returns queue status for diagnostic and monitoring dashboards."""
+    return jsonify({
+        "pending_count": len([j for j in DISPENSE_QUEUE if j["status"] == "PENDING"]),
+        "in_progress_count": len([j for j in DISPENSE_QUEUE if j["status"] == "IN_PROGRESS"]),
+        "queue": DISPENSE_QUEUE,
+        "recent_history": DISPENSE_HISTORY[-5:]
+    })
 
 
 if __name__ == "__main__":

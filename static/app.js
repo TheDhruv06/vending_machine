@@ -606,6 +606,24 @@ function beginDispensingAnimation(drinkName, subtitle) {
     document.getElementById('dispenseDrinkTitle').textContent = `Dispensing: ${drinkName}`;
     document.getElementById('dispenseDrinkSub').textContent = subtitle || "Freshly preparing and filtering your herbal beverage...";
 
+    // Trigger hardware dispense queue for ESP32 BO motor
+    const teaCode = (latestConsultationResult && latestConsultationResult.prescription)
+        ? latestConsultationResult.prescription.tea_code
+        : (drinkName.includes('Regular') ? 'Regular Tea' : drinkName);
+
+    fetch('/api/dispense', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            drink_name: drinkName,
+            tea_code: teaCode
+        })
+    }).then(r => r.json()).then(data => {
+        console.log("Hardware Dispense Job Queued for ESP32:", data);
+    }).catch(err => {
+        console.warn("Could not reach ESP32 dispense queue:", err);
+    });
+
     const progressFill = document.getElementById('dispenseProgress');
     const percentLabel = document.getElementById('dispensePercent');
     const stepLabel = document.getElementById('dispenseStepText');
