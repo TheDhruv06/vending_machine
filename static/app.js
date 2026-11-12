@@ -244,9 +244,11 @@ function startAssessment() {
 }
 
 /**
- * Direct Instant Dispense Track (For Regular Tea & Selected Kashayas)
+ * Direct Instant Dispense Track (Lemongrass Sip / MedoHar Sip)
  */
 function startDirectDispense(drinkName, subtitle, description, ingredients) {
+    // Clear any previous assessment result so direct dispense sends its own drink code
+    latestConsultationResult = null;
     currentDispensingDrink = {
         name: drinkName,
         subtitle: subtitle,
@@ -607,9 +609,14 @@ function beginDispensingAnimation(drinkName, subtitle) {
     document.getElementById('dispenseDrinkSub').textContent = subtitle || "Freshly preparing and filtering your herbal beverage...";
 
     // Trigger hardware dispense queue for ESP32 BO motor
-    const teaCode = (latestConsultationResult && latestConsultationResult.prescription)
-        ? latestConsultationResult.prescription.tea_code
-        : (drinkName.includes('Regular') ? 'Regular Tea' : drinkName);
+    let teaCode = drinkName;
+    if (latestConsultationResult && latestConsultationResult.prescription) {
+        teaCode = latestConsultationResult.prescription.tea_code;
+    } else if (drinkName.includes('Lemongrass')) {
+        teaCode = 'Tea A';
+    } else if (drinkName.includes('MedoHar')) {
+        teaCode = 'Tea C';
+    }
 
     fetch('/api/dispense', {
         method: 'POST',

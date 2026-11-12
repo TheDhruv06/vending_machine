@@ -339,59 +339,24 @@ SYMPTOMS_CATALOG = {
 
 
 # ======================================================================================
-# 5. TEA FORMULATION CATALOG (6 TEAS)
+# 5. TEA FORMULATION CATALOG (ACTIVE FORMULATIONS: LEMONGRASS SIP & MEDOHAR SIP)
 # ======================================================================================
 TEA_CATALOG = {
     "Tea A": {
         "code": "Tea A",
         "name": "Lemongrass Sip",
-        "category": "Category A (Vata-Hara / Digestive & Carminative)",
+        "category": "Category A (Soothing Carminative & Vata-Pitta Pacifying)",
         "ingredients": ["Lemongrass"],
-        "action": "Carminative & Vata-pacifying. Calms gut spasms, expels trapped abdominal gas, and eases nervous tension.",
-        "indication": "Bloating, abdominal distension, sharp spasmodic pains, and morning stiffness."
-    },
-    "Tea B": {
-        "code": "Tea B",
-        "name": "Vital Sip",
-        "category": "Category B (Pitta-Hara / Cooling & Anti-inflammatory)",
-        "ingredients": ["Arjun Bark (Terminalia arjuna)"],
-        "action": "Deeply cooling (Sheeta Virya), cardiotonic (Hridya), and anti-inflammatory. Neutralizes pitta heat and soothes vascular inflammation.",
-        "indication": "Hyperacidity, heartburn, burning sensations, inflammatory joint swelling, and excessive metabolic heat."
+        "action": "Gentle carminative & nervous-system calming. Relieves bloating, soothes acidity/heat, calms spasmodic nerve tension, and promotes smooth digestive comfort.",
+        "indication": "Bloating, abdominal gas, hyperacidity/burning sensations, nerve discomfort, and calming daily balance."
     },
     "Tea C": {
         "code": "Tea C",
         "name": "MedoHar Sip",
-        "category": "Category C (Kapha-Hara / Stimulating & Scraping)",
+        "category": "Category C (Metabolic Igniter, Scraping & Immunity Boost)",
         "ingredients": ["Jeera", "Sounf", "Lemongrass", "Ajwain", "Dry Ginger (Sunthi)", "Moringa"],
-        "action": "Deepana-Pachana & Lekhana (metabolism stimulating and fat/toxin scraping). Clears ama (undigested toxins) and reduces heaviness.",
-        "indication": "Sluggish digestion, heaviness in the stomach, lethargy, dull aches, and morning joint stiffness."
-    },
-    "Tea D": {
-        "code": "Tea D",
-        "name": "Mangalayu Tea",
-        "category": "Category D (Vata-Anulomana / Mild Laxative & Gut Regularizer)",
-        "ingredients": ["Tea Leaves", "Dry Ginger", "Elaichi", "Bay Leaf", "Rose Petals", "Aprajita", "Lemongrass"],
-        "action": "Vata-Anulomana (directing Vata downwards). Softens stools, balances intestinal peristalsis, and restores regular bowel motility.",
-        "indication": "Constipation, dry stool passage, and irregular downward elimination."
-    },
-    "Tea E": {
-        "code": "Tea E",
-        "name": "Moringa Sip",
-        "category": "Category E (Rasayana / Immunity Boost & Vitalizer)",
-        "ingredients": ["Moringa Leaf"],
-        "action": "Rasayana (rejuvenative) & Dhatu-poshaka (tissue nourishing). Rich in micronutrients, enhances Ojas (vital immunity), and fights chronic exhaustion.",
-        "indication": "Low immunity, generalized fatigue, body ache, and depleted vitality."
-    },
-    "Tea F": {
-        "code": "Tea F",
-        "name": "Green Sip",
-        "category": "Category F (Pranavaha / Respiratory Support & Antitussive)",
-        "ingredients": [
-            "Jeera", "Sounf", "Lemongrass", "Ajwain", "Dry Ginger", 
-            "Moringa", "Rose", "Elaichi", "Black Pepper", "Tulsi", "Bay Leaf"
-        ],
-        "action": "Pranavaha Srotas clearing (clears respiratory channels), liquefies kapha mucus, eases airway spasms, and boosts respiratory defenses.",
-        "indication": "Acute cough, cold, nasal congestion, seasonal allergies, and chest heaviness."
+        "action": "Deepana-Pachana, Lekhana & Rasayana (ignites digestive fire, clears ama toxins, relieves congestion/constipation, and fortifies immunity with Moringa).",
+        "indication": "Heavy stomach, sluggish digestion, constipation, morning stiffness, cold/cough congestion, low immunity, and energizing daily vitality."
     }
 }
 
@@ -399,106 +364,107 @@ TEA_CATALOG = {
 # ======================================================================================
 # 6. EXACT 84 PERMUTATIONS & COMBINATIONS MATRIX (7 Prakritis x 12 Symptom States)
 # ======================================================================================
-# As defined in the clinical specification document:
-# 7 Prakriti states (V, P, K, VP, PK, VK, VPK) x 12 Symptoms (11 Acute + 1 General Wellness) = 84 exact mappings
+# Exclusively routes every user assessment to either:
+# - "Tea A": Lemongrass Sip (Container 1 / BO Motor 1)
+# - "Tea C": MedoHar Sip (Container 2 / BO Motor 2)
 RECOMMENDATION_MATRIX = {
     # ------------------ VATA (V) DOMINANT ------------------
     ("V", "No Issue / I am Fine"): "Tea A",
     ("V", "Bloating / Gas"): "Tea A",
-    ("V", "Acidity / Burning"): "Tea B",
-    ("V", "Heavy Stomach"): "Tea A",
-    ("V", "Constipation"): "Tea D",
+    ("V", "Acidity / Burning"): "Tea A",
+    ("V", "Heavy Stomach"): "Tea C",
+    ("V", "Constipation"): "Tea C",
     ("V", "Back / Nerve Pain"): "Tea A",
-    ("V", "Body Ache / Fatigue"): "Tea E",
-    ("V", "Joint Swelling"): "Tea B",
+    ("V", "Body Ache / Fatigue"): "Tea A",
+    ("V", "Joint Swelling"): "Tea A",
     ("V", "Morning Stiffness"): "Tea A",
-    ("V", "Cold / Allergies"): "Tea F",
-    ("V", "Cough / Congestion"): "Tea F",
-    ("V", "Low Immunity"): "Tea E",
+    ("V", "Cold / Allergies"): "Tea C",
+    ("V", "Cough / Congestion"): "Tea C",
+    ("V", "Low Immunity"): "Tea C",
 
     # ------------------ PITTA (P) DOMINANT ------------------
-    ("P", "No Issue / I am Fine"): "Tea B",
+    ("P", "No Issue / I am Fine"): "Tea A",
     ("P", "Bloating / Gas"): "Tea A",
-    ("P", "Acidity / Burning"): "Tea B",
+    ("P", "Acidity / Burning"): "Tea A",
     ("P", "Heavy Stomach"): "Tea C",
-    ("P", "Constipation"): "Tea D",
+    ("P", "Constipation"): "Tea C",
     ("P", "Back / Nerve Pain"): "Tea A",
-    ("P", "Body Ache / Fatigue"): "Tea E",
-    ("P", "Joint Swelling"): "Tea B",
+    ("P", "Body Ache / Fatigue"): "Tea A",
+    ("P", "Joint Swelling"): "Tea A",
     ("P", "Morning Stiffness"): "Tea C",
-    ("P", "Cold / Allergies"): "Tea E",
-    ("P", "Cough / Congestion"): "Tea F",
-    ("P", "Low Immunity"): "Tea E",
+    ("P", "Cold / Allergies"): "Tea C",
+    ("P", "Cough / Congestion"): "Tea C",
+    ("P", "Low Immunity"): "Tea C",
 
     # ------------------ KAPHA (K) DOMINANT ------------------
     ("K", "No Issue / I am Fine"): "Tea C",
     ("K", "Bloating / Gas"): "Tea C",
-    ("K", "Acidity / Burning"): "Tea B",
+    ("K", "Acidity / Burning"): "Tea A",
     ("K", "Heavy Stomach"): "Tea C",
-    ("K", "Constipation"): "Tea D",
+    ("K", "Constipation"): "Tea C",
     ("K", "Back / Nerve Pain"): "Tea C",
     ("K", "Body Ache / Fatigue"): "Tea C",
     ("K", "Joint Swelling"): "Tea C",
     ("K", "Morning Stiffness"): "Tea C",
-    ("K", "Cold / Allergies"): "Tea F",
-    ("K", "Cough / Congestion"): "Tea F",
-    ("K", "Low Immunity"): "Tea E",
+    ("K", "Cold / Allergies"): "Tea C",
+    ("K", "Cough / Congestion"): "Tea C",
+    ("K", "Low Immunity"): "Tea C",
 
     # ------------------ VATA-PITTA (VP) DUAL ------------------
     ("VP", "No Issue / I am Fine"): "Tea A",
     ("VP", "Bloating / Gas"): "Tea A",
-    ("VP", "Acidity / Burning"): "Tea B",
-    ("VP", "Heavy Stomach"): "Tea A",
-    ("VP", "Constipation"): "Tea D",
+    ("VP", "Acidity / Burning"): "Tea A",
+    ("VP", "Heavy Stomach"): "Tea C",
+    ("VP", "Constipation"): "Tea C",
     ("VP", "Back / Nerve Pain"): "Tea A",
-    ("VP", "Body Ache / Fatigue"): "Tea E",
-    ("VP", "Joint Swelling"): "Tea B",
+    ("VP", "Body Ache / Fatigue"): "Tea A",
+    ("VP", "Joint Swelling"): "Tea A",
     ("VP", "Morning Stiffness"): "Tea A",
-    ("VP", "Cold / Allergies"): "Tea F",
-    ("VP", "Cough / Congestion"): "Tea F",
-    ("VP", "Low Immunity"): "Tea E",
+    ("VP", "Cold / Allergies"): "Tea C",
+    ("VP", "Cough / Congestion"): "Tea C",
+    ("VP", "Low Immunity"): "Tea C",
 
     # ------------------ PITTA-KAPHA (PK) DUAL ------------------
-    ("PK", "No Issue / I am Fine"): "Tea B",
+    ("PK", "No Issue / I am Fine"): "Tea A",
     ("PK", "Bloating / Gas"): "Tea C",
-    ("PK", "Acidity / Burning"): "Tea B",
+    ("PK", "Acidity / Burning"): "Tea A",
     ("PK", "Heavy Stomach"): "Tea C",
-    ("PK", "Constipation"): "Tea D",
-    ("PK", "Back / Nerve Pain"): "Tea B",
+    ("PK", "Constipation"): "Tea C",
+    ("PK", "Back / Nerve Pain"): "Tea A",
     ("PK", "Body Ache / Fatigue"): "Tea C",
-    ("PK", "Joint Swelling"): "Tea B",
+    ("PK", "Joint Swelling"): "Tea A",
     ("PK", "Morning Stiffness"): "Tea C",
-    ("PK", "Cold / Allergies"): "Tea F",
-    ("PK", "Cough / Congestion"): "Tea F",
-    ("PK", "Low Immunity"): "Tea E",
+    ("PK", "Cold / Allergies"): "Tea C",
+    ("PK", "Cough / Congestion"): "Tea C",
+    ("PK", "Low Immunity"): "Tea C",
 
     # ------------------ VATA-KAPHA (VK) DUAL ------------------
     ("VK", "No Issue / I am Fine"): "Tea C",
-    ("VK", "Bloating / Gas"): "Tea A",
-    ("VK", "Acidity / Burning"): "Tea B",
+    ("VK", "Bloating / Gas"): "Tea C",
+    ("VK", "Acidity / Burning"): "Tea A",
     ("VK", "Heavy Stomach"): "Tea C",
-    ("VK", "Constipation"): "Tea D",
+    ("VK", "Constipation"): "Tea C",
     ("VK", "Back / Nerve Pain"): "Tea A",
     ("VK", "Body Ache / Fatigue"): "Tea C",
     ("VK", "Joint Swelling"): "Tea C",
     ("VK", "Morning Stiffness"): "Tea C",
-    ("VK", "Cold / Allergies"): "Tea F",
-    ("VK", "Cough / Congestion"): "Tea F",
-    ("VK", "Low Immunity"): "Tea E",
+    ("VK", "Cold / Allergies"): "Tea C",
+    ("VK", "Cough / Congestion"): "Tea C",
+    ("VK", "Low Immunity"): "Tea C",
 
     # ------------------ TRIDOSHA (VPK) BALANCED ------------------
-    ("VPK", "No Issue / I am Fine"): "Tea E",
+    ("VPK", "No Issue / I am Fine"): "Tea C",
     ("VPK", "Bloating / Gas"): "Tea A",
-    ("VPK", "Acidity / Burning"): "Tea B",
+    ("VPK", "Acidity / Burning"): "Tea A",
     ("VPK", "Heavy Stomach"): "Tea C",
-    ("VPK", "Constipation"): "Tea D",
+    ("VPK", "Constipation"): "Tea C",
     ("VPK", "Back / Nerve Pain"): "Tea A",
-    ("VPK", "Body Ache / Fatigue"): "Tea E",
-    ("VPK", "Joint Swelling"): "Tea B",
+    ("VPK", "Body Ache / Fatigue"): "Tea C",
+    ("VPK", "Joint Swelling"): "Tea A",
     ("VPK", "Morning Stiffness"): "Tea C",
-    ("VPK", "Cold / Allergies"): "Tea F",
-    ("VPK", "Cough / Congestion"): "Tea F",
-    ("VPK", "Low Immunity"): "Tea E"
+    ("VPK", "Cold / Allergies"): "Tea C",
+    ("VPK", "Cough / Congestion"): "Tea C",
+    ("VPK", "Low Immunity"): "Tea C"
 }
 
 
@@ -507,32 +473,32 @@ RECOMMENDATION_MATRIX = {
 # ======================================================================================
 CONSTITUTIONAL_MAINTENANCE_DETAILS = {
     "V": {
-        "action": "Vata-Shamana & Nervous Grounding. Delivers gentle carminative warmth to stabilize erratic Vata, nourishes nervous tissues, and sustains smooth, calm digestion.",
-        "indication": "Daily wellness for Vata constitution: Maintains grounded vitality, internal calm, and smooth digestive balance without acute ailments."
+        "action": "Lemongrass Vata-Shamana & Nervous Grounding. Delivers gentle carminative warmth to stabilize erratic Vata, calms nervous tension, and sustains smooth, relaxed digestion.",
+        "indication": "Daily wellness for Vata constitution: Maintains grounded vitality, internal calm, and smooth digestive balance."
     },
     "P": {
-        "action": "Pitta-Shamana & Cardiotonic Cooling. Gently cools intrinsic metabolic heat, protects cardiovascular vitality, and maintains clear, balanced enzymatic activity.",
-        "indication": "Daily wellness for Pitta constitution: Maintains cool composure, vascular health, and steady metabolic equilibrium without acute inflammation."
+        "action": "Lemongrass Soothing & Pitta Harmonization. Gently refreshes without adding spicy heat, keeps digestion calm, and prevents acid accumulation.",
+        "indication": "Daily wellness for Pitta constitution: Maintains cool composure, light digestion, and balanced daily energy."
     },
     "K": {
-        "action": "Deepana-Pachana & Kapha-Shamana. Ignites metabolic Agni, prevents sluggishness, clears lymphatic channels, and keeps energy vibrant and light.",
-        "indication": "Daily wellness for Kapha constitution: Maintains active metabolism, cellular lightness, and sustained daily stamina without congestion."
+        "action": "MedoHar Deepana-Pachana & Kapha-Shamana. Powered by Sunthi, Ajwain, Jeera, and Moringa to ignite metabolic Agni, prevent sluggishness, and keep energy vibrant and light.",
+        "indication": "Daily wellness for Kapha constitution: Maintains active metabolism, cellular lightness, and sustained daily stamina."
     },
     "VP": {
-        "action": "Dual-Dosha Harmonization. Gentle carminative warmth that pacifies erratic Vata while remaining cooling and soothing for sensitive Pitta.",
+        "action": "Lemongrass Dual-Dosha Harmonization. Gentle carminative action that pacifies erratic Vata while remaining soothing and light for sensitive Pitta.",
         "indication": "Daily wellness for Vata-Pitta constitution: Balances digestive rhythm, soothes nervous tension, and refreshes the mind."
     },
     "PK": {
-        "action": "Pitta-Kapha Equilibrium. Cardiotonic cooling that clears metabolic stagnation while preserving steady enzymatic fire.",
-        "indication": "Daily wellness for Pitta-Kapha constitution: Sustains clean circulation, metabolic harmony, and calm vigor."
+        "action": "Lemongrass Pitta-Kapha Refreshment. Keeps digestive fire steady and prevents metabolic heat or stagnation without over-stimulating Pitta.",
+        "indication": "Daily wellness for Pitta-Kapha constitution: Sustains clean circulation, digestive harmony, and calm vigor."
     },
     "VK": {
-        "action": "Ushna-Virya Warming & Metabolism Boost. Dispels internal coldness, boosts digestive fire, and keeps energy uplifted and grounded.",
-        "indication": "Daily wellness for Vata-Kapha constitution: Counteracts cold tendencies, prevents lethargy, and enhances circulation."
+        "action": "MedoHar Warming & Metabolism Boost. Dispels internal coldness with Jeera, Ajwain, and Sunthi while nourishing tissues with Moringa.",
+        "indication": "Daily wellness for Vata-Kapha constitution: Counteracts cold tendencies, prevents lethargy, and boosts digestive fire."
     },
     "VPK": {
-        "action": "Universal Rasayana & Dhatu Poshaka. Delivers comprehensive cellular nutrition, fortifies all 7 bodily tissues, and elevates Ojas (vital immunity).",
-        "indication": "Daily wellness for Sama Dosha (Balanced): Universal rejuvenation, immune fortification, and all-day natural vitality."
+        "action": "MedoHar Rasayana & Daily Metabolic Vitality. Delivers comprehensive Moringa nutrition paired with balanced digestive spices (Jeera, Sounf, Lemongrass) to fortify Ojas.",
+        "indication": "Daily wellness for Sama Dosha (Balanced): Comprehensive cellular nourishment, immune fortification, and all-day vitality."
     }
 }
 

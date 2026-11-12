@@ -412,6 +412,89 @@ body {
     transform: translateX(6px);
 }
 
+.direct-sip-card {
+    cursor: default;
+}
+
+.direct-sip-card:hover {
+    transform: none;
+}
+
+.direct-sip-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.btn-quick-sip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1.5px solid #e2c5a8;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.btn-quick-sip:hover {
+    transform: translateY(-2px);
+    border-color: #b8621b;
+    background: #fffcf7;
+    box-shadow: 0 6px 14px rgba(184, 98, 27, 0.12);
+}
+
+.btn-quick-sip.lemongrass:hover {
+    border-color: var(--primary);
+    background: #f3fbf5;
+    box-shadow: 0 6px 14px rgba(34, 112, 62, 0.12);
+}
+
+.btn-quick-sip .sip-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.btn-quick-sip .sip-meta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.btn-quick-sip .sip-meta strong {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.btn-quick-sip .sip-meta small {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.btn-quick-sip .sip-go {
+    font-size: 18px;
+    font-weight: 800;
+    color: #b8621b;
+    transition: transform 0.2s ease;
+}
+
+.btn-quick-sip.lemongrass .sip-go {
+    color: var(--primary);
+}
+
+.btn-quick-sip:hover .sip-go {
+    transform: translateX(4px);
+}
+
 /* ==========================================================================
    KASHAYA SELECTION MENU (CLEAN & MINIMAL: KASHAYA A, B, C)
    ========================================================================== */

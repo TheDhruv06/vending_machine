@@ -1,313 +1,314 @@
 /*
  * =====================================================================================
  * SOILVEDA ORGANICS - AYURVEDIC VENDING MACHINE
- * MODULE: 1. STANDALONE BO MOTOR & DISPENSER HARDWARE TEST SKETCH
+ * MODULE: STANDALONE ESP32 MOTOR & WATER PUMP CONTROLLER (SERIAL TERMINAL CONTROL)
  * =====================================================================================
- * Target Board: ESP32 Dev Module (WROOM / NodeMCU-32S / ESP32 30-pin & 38-pin)
- * Motor Driver: L298N / L293D / TB6612FNG or Relay Module
- * Actuators:    BO Gear Motors (Yellow TT DC Motors) attached to Powder Containers/Augers
+ * Target Board  : ESP32 Dev Module (30-pin / 38-pin)
+ * Motor Driver 1: L298N #1 -> Controls 2 BO Motors (Powder Containers)
+ *   - Motor 1 (D1 M1): Container 1 -> Lemongrass Sip BO Motor
+ *   - Motor 2 (D1 M2): Container 2 -> MedoHar Sip BO Motor
+ * Motor Driver 2: L298N #2 -> Controls 2 Water Pumps
+ *   - Motor 1 (D2 M1): Water Dispense Pump (Dispenses water)
+ *   - Motor 2 (D2 M2): Water Extract Pump  (Extracts / pumps out water)
  *
- * PURPOSE:
- * Use this code to test and calibrate your physical dispensing hardware independently
- * BEFORE connecting to WiFi or the Web UI.
+ * HOW TO CONTROL VIA SERIAL MONITOR (Baud Rate: 115200):
+ * Simply type any command like:
+ *   - "MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC"  -> Runs Driver 1, Motor 2 for 3 seconds
+ *   - "D1 M1 2.5"                         -> Runs Driver 1, Motor 1 for 2.5 seconds
+ *   - "1 2 3"                             -> Runs Driver 1, Motor 2 for 3 seconds
+ *   - "MOTOR DRIVER 2 MOTOR 1 FOR 5 SEC"  -> Runs Water Dispense Pump for 5 seconds
+ *   - "D2 M2 4"                           -> Runs Water Extract Pump for 4 seconds
+ *   - "S" or "STOP"                       -> Emergency Stop (works anytime!)
  *
- * FEATURES:
- * 1. Independent control of up to 4 powder dispensing containers (expandable to 6).
- * 2. Interactive Serial Monitor control menu (type 1, 2, 3, 4, or A, B, C, D).
- * 3. Calibrated dispensing duration (adjust runtime to drop exact grams of powder).
- * 4. Automated sequential self-test mode (tests all motors one after another).
- * 5. Emergency Stop command ('S') to instantly shut down all motors.
- * 6. Brief anti-jam reverse pulse option to prevent powder packing in the nozzle.
- *
- * HARDWARE WIRING GUIDE (L298N Dual H-Bridge to ESP32):
+ * HARDWARE WIRING (ESP32 TO BOTH L298N DRIVERS):
  * -------------------------------------------------------------------------------------
- *  ESP32 Pin     -> L298N Driver Pin    -> Connected Hardware
- *  GPIO 18       -> IN1 (Driver 1)      -> Motor 1 / Container 1 (Tea A: Lemongrass Sip)
- *  GPIO 19       -> IN2 (Driver 1)      -> Motor 1 / Container 1
- *  GPIO 21       -> IN3 (Driver 1)      -> Motor 2 / Container 2 (Tea B: Vital Sip)
- *  GPIO 22       -> IN4 (Driver 1)      -> Motor 2 / Container 2
- *  GPIO 23       -> IN1 (Driver 2)      -> Motor 3 / Container 3 (Tea C: MedoHar Sip)
- *  GPIO 25       -> IN2 (Driver 2)      -> Motor 3 / Container 3
- *  GPIO 26       -> IN3 (Driver 2)      -> Motor 4 / Container 4 (Tea D / Regular Tea)
- *  GPIO 27       -> IN4 (Driver 2)      -> Motor 4 / Container 4
- *  GND           -> L298N GND           -> COMMON GROUND (CRITICAL!)
+ *  ESP32 Pin  -> Driver Pin          -> Hardware Function
+ *  GPIO 18    -> Driver 1 IN1        -> Driver 1, Motor 1 (Lemongrass Sip BO Motor)
+ *  GPIO 19    -> Driver 1 IN2        -> Driver 1, Motor 1
+ *  GPIO 21    -> Driver 1 IN3        -> Driver 1, Motor 2 (MedoHar Sip BO Motor)
+ *  GPIO 22    -> Driver 1 IN4        -> Driver 1, Motor 2
  *
- * POWER SUPPLY RULES:
- * 1. NEVER power BO motors directly from the ESP32 3.3V or 5V (VIN) pin!
- * 2. Connect an external 6V, 9V, or 12V DC power supply to the L298N 12V terminal.
- * 3. Connect the L298N GND to BOTH the external power supply negative AND ESP32 GND.
+ *  GPIO 23    -> Driver 2 IN1        -> Driver 2, Motor 1 (Water Dispense Pump)
+ *  GPIO 25    -> Driver 2 IN2        -> Driver 2, Motor 1
+ *  GPIO 26    -> Driver 2 IN3        -> Driver 2, Motor 2 (Water Extract Pump)
+ *  GPIO 27    -> Driver 2 IN4        -> Driver 2, Motor 2
+ *
+ *  GND        -> Driver 1 & 2 GND    -> COMMON GROUND WITH EXTERNAL POWER SUPPLY!
+ *
+ * NOTE ON L298N JUMPERS:
+ * Keep the 2 green/black ENA & ENB jumper caps ON both L298N boards for full speed.
+ * Always use an external 6V-12V power supply connected to the L298N 12V terminal
+ * (never power motors/pumps from ESP32 3.3V/5V pins).
  * =====================================================================================
  */
 
 #include <Arduino.h>
 
 // =====================================================================================
-// 1. PIN CONFIGURATIONS
+// 1. PIN DEFINITIONS
 // =====================================================================================
-// Motor 1 - Container 1 (Tea A: Lemongrass Sip / Kashaya A)
-#define MOTOR1_IN1 18
-#define MOTOR1_IN2 19
+// MOTOR DRIVER 1: BO MOTORS (TEA CONTAINERS)
+#define MD1_M1_IN1 18   // Container 1: Lemongrass Sip
+#define MD1_M1_IN2 19
+#define MD1_M2_IN1 21   // Container 2: MedoHar Sip
+#define MD1_M2_IN2 22
 
-// Motor 2 - Container 2 (Tea B: Vital Sip / Kashaya B)
-#define MOTOR2_IN1 21
-#define MOTOR2_IN2 22
+// MOTOR DRIVER 2: WATER PUMPS
+#define MD2_M1_IN1 23   // Water Pump 1: Water Dispense Pump
+#define MD2_M1_IN2 25
+#define MD2_M2_IN1 26   // Water Pump 2: Water Extract Pump
+#define MD2_M2_IN2 27
 
-// Motor 3 - Container 3 (Tea C: MedoHar Sip / Kashaya C)
-#define MOTOR3_IN1 23
-#define MOTOR3_IN2 25
-
-// Motor 4 - Container 4 (Tea D: Mangalayu Tea / Regular Tea)
-#define MOTOR4_IN1 26
-#define MOTOR4_IN2 27
-
-// Onboard diagnostic LED (usually GPIO 2 on most ESP32 boards)
+// Onboard status LED (GPIO 2 on most ESP32 boards)
 #define STATUS_LED 2
 
-// Total number of active containers configured in this test
-#define TOTAL_CONTAINERS 4
-
-// =====================================================================================
-// 2. DISPENSING CALIBRATION SETTINGS
-// =====================================================================================
-// Default run time for the BO motor to drop the desired powder quantity (in milliseconds).
-// Example: If 2500ms drops ~6 grams of herbal powder, adjust this to calibrate your auger.
-unsigned long dispenseDurationMs = 2500;
-
-// Brief reverse rotation at the end of dispensing to prevent nozzle jamming (in ms).
-// Set to 0 if your powder dispenser mechanism does not require anti-jam reversal.
-const unsigned long ANTI_JAM_REVERSE_MS = 150;
-
-// Struct to organize motor pin pairs cleanly
-struct MotorPins {
-  uint8_t in1;
-  uint8_t in2;
-  const char* label;
-  const char* formulationName;
+// Structure representing each Driver/Motor channel
+struct ActuatorChannel {
+  uint8_t driverId;     // 1 or 2
+  uint8_t motorId;      // 1 or 2
+  uint8_t pinIn1;
+  uint8_t pinIn2;
+  const char* name;
+  const char* role;
 };
 
-// Define all container motors
-const MotorPins containers[TOTAL_CONTAINERS] = {
-  {MOTOR1_IN1, MOTOR1_IN2, "Container 1 (Motor 1)", "Tea A - Lemongrass Sip / Kashaya A"},
-  {MOTOR2_IN1, MOTOR2_IN2, "Container 2 (Motor 2)", "Tea B - Vital Sip / Kashaya B"},
-  {MOTOR3_IN1, MOTOR3_IN2, "Container 3 (Motor 3)", "Tea C - MedoHar Sip / Kashaya C"},
-  {MOTOR4_IN1, MOTOR4_IN2, "Container 4 (Motor 4)", "Tea D - Mangalayu / Regular Tea"}
+// Complete table of all 4 controlled channels
+const ActuatorChannel channels[4] = {
+  {1, 1, MD1_M1_IN1, MD1_M1_IN2, "Driver 1 - Motor 1", "BO Motor 1 (Lemongrass Sip Container)"},
+  {1, 2, MD1_M2_IN1, MD1_M2_IN2, "Driver 1 - Motor 2", "BO Motor 2 (MedoHar Sip Container)"},
+  {2, 1, MD2_M1_IN1, MD2_M1_IN2, "Driver 2 - Motor 1", "Water Pump 1 (Water Dispense Pump)"},
+  {2, 2, MD2_M2_IN1, MD2_M2_IN2, "Driver 2 - Motor 2", "Water Pump 2 (Water Extract Pump)"}
 };
 
 // =====================================================================================
-// 3. LOW-LEVEL MOTOR CONTROL FUNCTIONS
+// 2. HARDWARE INITIALIZATION & MOTOR CONTROL
 // =====================================================================================
 
 /**
- * Initializes all motor driver control pins as outputs and ensures all motors are stopped.
+ * Sets all motor/pump control pins as OUTPUT and ensures everything starts OFF.
  */
-void initMotorHardware() {
+void initHardware() {
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, LOW);
 
-  for (int i = 0; i < TOTAL_CONTAINERS; i++) {
-    pinMode(containers[i].in1, OUTPUT);
-    pinMode(containers[i].in2, OUTPUT);
-    // Ensure motor starts in OFF state
-    digitalWrite(containers[i].in1, LOW);
-    digitalWrite(containers[i].in2, LOW);
+  for (int i = 0; i < 4; i++) {
+    pinMode(channels[i].pinIn1, OUTPUT);
+    pinMode(channels[i].pinIn2, OUTPUT);
+    digitalWrite(channels[i].pinIn1, LOW);
+    digitalWrite(channels[i].pinIn2, LOW);
   }
 }
 
 /**
- * Immediately stops a specific motor (Brakes the H-bridge).
- */
-void stopMotor(int containerIndex) {
-  if (containerIndex >= 0 && containerIndex < TOTAL_CONTAINERS) {
-    digitalWrite(containers[containerIndex].in1, LOW);
-    digitalWrite(containers[containerIndex].in2, LOW);
-  }
-}
-
-/**
- * Emergency All-Stop: Immediately stops all motors and turns off status LED.
+ * Stops all 4 motors/pumps immediately.
  */
 void emergencyStopAll() {
-  for (int i = 0; i < TOTAL_CONTAINERS; i++) {
-    stopMotor(i);
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(channels[i].pinIn1, LOW);
+    digitalWrite(channels[i].pinIn2, LOW);
   }
   digitalWrite(STATUS_LED, LOW);
-  Serial.println("\n[EMERGENCY STOP] All motors stopped immediately!");
+  Serial.println("\n[STOPPED] All motors and pumps are OFF.");
 }
 
 /**
- * Spins the BO motor forward to dispense herbal powder from the container.
- * 
- * @param containerIndex Index of container (0 to TOTAL_CONTAINERS - 1)
- * @param durationMs Milliseconds to keep the motor running
+ * Finds the matching channel index for a given (driverId, motorId).
  */
-void dispenseContainer(int containerIndex, unsigned long durationMs) {
-  if (containerIndex < 0 || containerIndex >= TOTAL_CONTAINERS) {
-    Serial.println("[ERROR] Invalid container index!");
+int findChannelIndex(int driverId, int motorId) {
+  for (int i = 0; i < 4; i++) {
+    if (channels[i].driverId == driverId && channels[i].motorId == motorId) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Runs a specific Motor Driver & Motor for the assigned duration in milliseconds.
+ * Monitors Serial input during runtime so user can type 'S' to abort anytime.
+ */
+void runMotorForDuration(int driverId, int motorId, unsigned long durationMs) {
+  int idx = findChannelIndex(driverId, motorId);
+  if (idx == -1) {
+    Serial.println("[ERROR] Invalid selection! Driver must be 1 or 2, Motor must be 1 or 2.");
     return;
   }
 
-  Serial.println("\n---------------------------------------------------------");
-  Serial.printf(">> STARTING DISPENSE: %s\n", containers[containerIndex].label);
-  Serial.printf("   Formulation : %s\n", containers[containerIndex].formulationName);
-  Serial.printf("   Duration    : %lu ms\n", durationMs);
-  Serial.println("---------------------------------------------------------");
+  float durationSec = durationMs / 1000.0;
 
-  // Turn on status LED to indicate dispensing in progress
-  digitalWrite(STATUS_LED, HIGH);
-
-  // 1. FORWARD ROTATION: Dispense powder
-  digitalWrite(containers[containerIndex].in1, HIGH);
-  digitalWrite(containers[containerIndex].in2, LOW);
-
-  // Progress countdown in Serial Monitor
-  unsigned long startTime = millis();
-  while (millis() - startTime < durationMs) {
-    unsigned long elapsed = millis() - startTime;
-    int progressPct = (elapsed * 100) / durationMs;
-    
-    // Print progress every 500ms
-    if (elapsed % 500 < 20) {
-      Serial.printf("   Dispensing... [%d%%] (%lu ms / %lu ms)\n", progressPct, elapsed, durationMs);
-    }
-    delay(20);
-  }
-
-  // 2. STOP MOTOR
-  digitalWrite(containers[containerIndex].in1, LOW);
-  digitalWrite(containers[containerIndex].in2, LOW);
-  delay(50);
-
-  // 3. OPTIONAL ANTI-JAM REVERSE PULSE (Prevents powder clumping at nozzle)
-  if (ANTI_JAM_REVERSE_MS > 0) {
-    Serial.printf("   Anti-jam reverse pulse (%lu ms)...\n", ANTI_JAM_REVERSE_MS);
-    digitalWrite(containers[containerIndex].in1, LOW);
-    digitalWrite(containers[containerIndex].in2, HIGH);
-    delay(ANTI_JAM_REVERSE_MS);
-
-    // Stop again
-    digitalWrite(containers[containerIndex].in1, LOW);
-    digitalWrite(containers[containerIndex].in2, LOW);
-  }
-
-  digitalWrite(STATUS_LED, LOW);
-  Serial.printf(">> [SUCCESS] %s dispensing complete! Powder dropped.\n\n", containers[containerIndex].label);
-}
-
-/**
- * Automated sequential test: Runs each motor one by one with a 1.5-second test cycle.
- */
-void runSequentialSelfTest() {
   Serial.println("\n=========================================================");
-  Serial.println(">> STARTING SEQUENTIAL SELF-TEST OF ALL CONTAINERS");
+  Serial.printf(">> STARTING : %s\n", channels[idx].name);
+  Serial.printf("   Function : %s\n", channels[idx].role);
+  Serial.printf("   Duration : %.2f seconds (%lu ms)\n", durationSec, durationMs);
+  Serial.println("   (Type 'S' or 'STOP' anytime to abort)");
   Serial.println("=========================================================");
 
-  for (int i = 0; i < TOTAL_CONTAINERS; i++) {
-    Serial.printf("\n[TEST %d/%d] Testing %s...\n", i + 1, TOTAL_CONTAINERS, containers[i].label);
-    dispenseContainer(i, 1500); // Test with 1.5s runtime
-    delay(1000); // 1-second pause between motors
+  digitalWrite(STATUS_LED, HIGH);
+
+  // Turn ON Motor / Pump (Forward polarity: IN1 = HIGH, IN2 = LOW)
+  digitalWrite(channels[idx].pinIn1, HIGH);
+  digitalWrite(channels[idx].pinIn2, LOW);
+
+  unsigned long startTime = millis();
+  unsigned long lastPrintTime = 0;
+
+  while (millis() - startTime < durationMs) {
+    unsigned long elapsed = millis() - startTime;
+
+    // Print progress once every 1000ms
+    if (elapsed - lastPrintTime >= 1000 || lastPrintTime == 0) {
+      lastPrintTime = elapsed;
+      float remainingSec = (durationMs - elapsed) / 1000.0;
+      Serial.printf("   Running... %.1f sec remaining\n", remainingSec);
+    }
+
+    // Check if user sent an emergency stop during execution
+    if (Serial.available() > 0) {
+      String abortCmd = Serial.readStringUntil('\n');
+      abortCmd.trim();
+      abortCmd.toUpperCase();
+      if (abortCmd == "S" || abortCmd == "STOP") {
+        emergencyStopAll();
+        Serial.println("[ABORTED BY USER]\n");
+        return;
+      }
+    }
+
+    delay(10);
   }
 
-  Serial.println("\n>> [ALL TESTS COMPLETED] All BO motors tested successfully!");
+  // Turn OFF Motor / Pump
+  digitalWrite(channels[idx].pinIn1, LOW);
+  digitalWrite(channels[idx].pinIn2, LOW);
+  digitalWrite(STATUS_LED, LOW);
+
+  Serial.printf(">> [COMPLETE] %s stopped after %.2f seconds.\n\n", channels[idx].name, durationSec);
 }
 
 // =====================================================================================
-// 4. USER INTERACTION: SERIAL MENU
+// 3. SMART SERIAL TERMINAL COMMAND PARSER
 // =====================================================================================
 
 void printMenu() {
   Serial.println("\n=========================================================");
-  Serial.println("    SOILVEDA ORGANICS - BO MOTOR DISPENSER TEST MENU     ");
+  Serial.println("   SOILVEDA ORGANICS - STANDALONE MOTOR & PUMP TESTER    ");
   Serial.println("=========================================================");
-  Serial.printf(" Current Dispense Runtime: %lu ms (~powder drop time)\n", dispenseDurationMs);
+  Serial.println(" HARDWARE MAP:");
+  Serial.println("   Motor Driver 1, Motor 1 : BO Motor 1 (Lemongrass Sip)");
+  Serial.println("   Motor Driver 1, Motor 2 : BO Motor 2 (MedoHar Sip)");
+  Serial.println("   Motor Driver 2, Motor 1 : Water Dispense Pump");
+  Serial.println("   Motor Driver 2, Motor 2 : Water Extract Pump");
   Serial.println("---------------------------------------------------------");
-  Serial.println(" [1] or [A] : Dispense Container 1 (Tea A: Lemongrass Sip)");
-  Serial.println(" [2] or [B] : Dispense Container 2 (Tea B: Vital Sip)");
-  Serial.println(" [3] or [C] : Dispense Container 3 (Tea C: MedoHar Sip)");
-  Serial.println(" [4] or [D] : Dispense Container 4 (Tea D / Regular Tea)");
-  Serial.println(" [T]        : Run Automated Self-Test (Tests all motors)");
-  Serial.println(" [+]        : Increase Dispense Duration (+250 ms)");
-  Serial.println(" [-]        : Decrease Dispense Duration (-250 ms)");
-  Serial.println(" [S]        : EMERGENCY ALL STOP");
+  Serial.println(" HOW TO ENTER COMMANDS (Any format works!):");
+  Serial.println("   1) MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC");
+  Serial.println("   2) D1 M2 3       (Driver 1, Motor 2, 3 sec)");
+  Serial.println("   3) 2 1 5         (Driver 2, Motor 1, 5 sec)");
+  Serial.println("   4) 1 1 2.5       (Supports decimals like 2.5 sec)");
+  Serial.println("   5) 1 2 1500ms    (Add 'ms' to specify milliseconds)");
+  Serial.println("   6) STOP or S     (Emergency Stop all motors & pumps)");
+  Serial.println("   7) HELP or MENU  (Show this guide again)");
   Serial.println("=========================================================");
-  Serial.print("Enter command: ");
+  Serial.print("Waiting for command > ");
 }
 
-void processSerialInput() {
-  if (Serial.available() > 0) {
-    char cmd = Serial.read();
+/**
+ * Parses natural language or numeric serial commands.
+ * Extracts the first 3 numbers found in the string:
+ *   Number 1 -> Motor Driver (1 or 2)
+ *   Number 2 -> Motor (1 or 2)
+ *   Number 3 -> Duration (seconds, or ms if "ms" is in the string)
+ */
+void parseAndExecuteCommand(String rawInput) {
+  rawInput.trim();
+  if (rawInput.length() == 0) return;
 
-    // Ignore newline and carriage return characters
-    if (cmd == '\r' || cmd == '\n' || cmd == ' ') return;
+  Serial.println(rawInput);
 
-    cmd = toupper(cmd);
-    Serial.println(cmd);
+  String upper = rawInput;
+  upper.toUpperCase();
 
-    switch (cmd) {
-      case '1':
-      case 'A':
-        dispenseContainer(0, dispenseDurationMs);
-        break;
-
-      case '2':
-      case 'B':
-        dispenseContainer(1, dispenseDurationMs);
-        break;
-
-      case '3':
-      case 'C':
-        dispenseContainer(2, dispenseDurationMs);
-        break;
-
-      case '4':
-      case 'D':
-        dispenseContainer(3, dispenseDurationMs);
-        break;
-
-      case 'T':
-        runSequentialSelfTest();
-        break;
-
-      case '+':
-        dispenseDurationMs += 250;
-        Serial.printf(">> Dispense duration INCREASED to: %lu ms\n", dispenseDurationMs);
-        break;
-
-      case '-':
-        if (dispenseDurationMs > 250) {
-          dispenseDurationMs -= 250;
-          Serial.printf(">> Dispense duration DECREASED to: %lu ms\n", dispenseDurationMs);
-        } else {
-          Serial.println(">> Minimum duration reached (250 ms).");
-        }
-        break;
-
-      case 'S':
-        emergencyStopAll();
-        break;
-
-      default:
-        Serial.println(">> Unknown command! Type 1, 2, 3, 4, T, +, -, or S.");
-        break;
-    }
-
-    printMenu();
+  // Quick special commands
+  if (upper == "S" || upper == "STOP") {
+    emergencyStopAll();
+    Serial.print("Waiting for command > ");
+    return;
   }
+
+  if (upper == "HELP" || upper == "MENU" || upper == "?") {
+    printMenu();
+    return;
+  }
+
+  bool isMilliseconds = (upper.indexOf("MS") != -1);
+
+  // Extract up to 3 numeric values (supports decimals like 2.5)
+  float nums[3] = {0, 0, 0};
+  int numCount = 0;
+  String currentToken = "";
+
+  for (unsigned int i = 0; i < upper.length(); i++) {
+    char c = upper[i];
+    if (isdigit(c) || c == '.') {
+      currentToken += c;
+    } else {
+      if (currentToken.length() > 0 && numCount < 3) {
+        nums[numCount++] = currentToken.toFloat();
+        currentToken = "";
+      }
+    }
+  }
+  // Catch trailing number at the end of string
+  if (currentToken.length() > 0 && numCount < 3) {
+    nums[numCount++] = currentToken.toFloat();
+  }
+
+  if (numCount < 3) {
+    Serial.println("[ERROR] Could not read Driver, Motor, and Duration.");
+    Serial.println("Example: 'MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC' or '1 2 3'");
+    Serial.print("Waiting for command > ");
+    return;
+  }
+
+  int driverId = (int)nums[0];
+  int motorId  = (int)nums[1];
+  float rawDuration = nums[2];
+
+  if (driverId < 1 || driverId > 2) {
+    Serial.printf("[ERROR] Invalid Motor Driver '%d'. Please specify Driver 1 or 2.\n", driverId);
+    Serial.print("Waiting for command > ");
+    return;
+  }
+
+  if (motorId < 1 || motorId > 2) {
+    Serial.printf("[ERROR] Invalid Motor '%d'. Please specify Motor 1 or 2.\n", motorId);
+    Serial.print("Waiting for command > ");
+    return;
+  }
+
+  if (rawDuration <= 0) {
+    Serial.println("[ERROR] Duration must be greater than 0!");
+    Serial.print("Waiting for command > ");
+    return;
+  }
+
+  unsigned long durationMs = isMilliseconds ? (unsigned long)rawDuration : (unsigned long)(rawDuration * 1000.0);
+
+  // Execute the command!
+  runMotorForDuration(driverId, motorId, durationMs);
+  Serial.print("Waiting for command > ");
 }
 
 // =====================================================================================
-// 5. MAIN SETUP & LOOP
+// 4. MAIN SETUP & LOOP
 // =====================================================================================
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("\n\nSoil Veda Organics - ESP32 Hardware Initializing...");
+  initHardware();
 
-  // Initialize all GPIOs for motor driver
-  initMotorHardware();
-
-  // Quick LED greeting blink (3 pulses)
+  // Startup LED blink (3 pulses)
   for (int i = 0; i < 3; i++) {
     digitalWrite(STATUS_LED, HIGH);
     delay(100);
@@ -315,12 +316,13 @@ void setup() {
     delay(100);
   }
 
-  Serial.println("Hardware initialized successfully. All BO motors in standby.");
   printMenu();
 }
 
 void loop() {
-  // Listen for interactive calibration and testing commands from user
-  processSerialInput();
+  if (Serial.available() > 0) {
+    String inputLine = Serial.readStringUntil('\n');
+    parseAndExecuteCommand(inputLine);
+  }
   delay(10);
 }

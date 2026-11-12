@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soilveda Organics | Automated Kashaya & Herbal Tea Vending</title>
+    <title>Soilveda Organics | AI Herbal Tea Vending</title>
     <link rel="stylesheet" href="/static/style.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,13 +32,13 @@
         </header>
 
         <!-- ================================================================= -->
-        <!-- SCREEN 1: WELCOME SCREEN (2 PRIMARY SIDEWAYS BUTTONS)              -->
+        <!-- SCREEN 1: WELCOME SCREEN (2 PRIMARY SIDEWAYS TRACKS)               -->
         <!-- ================================================================= -->
         <section id="screen-welcome" class="screen active">
             <div class="welcome-hero">
                 <span class="hero-badge">🌿 Welcome to Soil Veda</span>
                 <h2 class="hero-heading">How would you like your beverage prepared today?</h2>
-                <p class="hero-subtext">Choose your track below to begin your personalized drink preparation:</p>
+                <p class="hero-subtext">Take our personalized Ayurvedic assessment or directly brew Lemongrass Sip / MedoHar Sip:</p>
             </div>
 
             <div class="welcome-options-grid sideways-grid">
@@ -52,7 +52,7 @@
                     </div>
                     <div class="choice-body">
                         <h3>Take Health Assessment</h3>
-                        <p>Answer 7 quick questions to evaluate your Prakriti & Agni and receive a customized doctor-formulated herbal brew.</p>
+                        <p>Answer 7 quick questions to evaluate your Prakriti & Agni and let our clinical model prescribe Lemongrass Sip or MedoHar Sip.</p>
                     </div>
                     <div class="choice-cta-row">
                         <span class="choice-cta-text">Start Assessment</span>
@@ -60,64 +60,37 @@
                     </div>
                 </button>
 
-                <!-- OPTION 2: REGULAR TEA -->
-                <button type="button" class="kiosk-choice-card regular-tea-choice" onclick="startDirectDispense('Regular Tea', 'Classic Fresh Brewed Tea', 'Freshly brewed hot chai with ginger & cardamom.')">
+                <!-- OPTION 2: DIRECT QUICK BREW (LEMONGRASS SIP / MEDOHAR SIP) -->
+                <div class="kiosk-choice-card regular-tea-choice direct-sip-card">
                     <div class="choice-top-row">
                         <div class="choice-icon-wrap amber-icon-wrap">
-                            <span class="choice-icon">☕</span>
+                            <span class="choice-icon">🍵</span>
                         </div>
                         <span class="choice-tag amber-tag">Instant Quick Brew</span>
                     </div>
                     <div class="choice-body">
-                        <h3>Regular Tea</h3>
-                        <p>Classic freshly brewed hot herbal tea infused with gentle aromatic Indian spices. Instant dispense with no assessment.</p>
+                        <h3>Direct Herbal Sip</h3>
+                        <p>Already know what you need? Instantly brew either of our two signature Ayurvedic formulations:</p>
                     </div>
-                    <div class="choice-cta-row">
-                        <span class="choice-cta-text">Dispense Regular Tea</span>
-                        <span class="choice-arrow">&rarr;</span>
+                    <div class="direct-sip-buttons">
+                        <button type="button" class="btn-quick-sip lemongrass" onclick="startDirectDispense('Lemongrass Sip', 'Soothing Carminative & Calm (Tea A)', 'Gentle lemongrass brew to calm bloating, acidity, and nerve tension.')">
+                            <span class="sip-icon">🌿</span>
+                            <span class="sip-meta">
+                                <strong>Lemongrass Sip</strong>
+                                <small>Container 1 &bull; Soothing &amp; Carminative</small>
+                            </span>
+                            <span class="sip-go">&rarr;</span>
+                        </button>
+                        <button type="button" class="btn-quick-sip medohar" onclick="startDirectDispense('MedoHar Sip', 'Metabolic Igniter & Immunity (Tea C)', 'Energizing herbal blend of Jeera, Sounf, Ajwain, Sunthi & Moringa.')">
+                            <span class="sip-icon">✨</span>
+                            <span class="sip-meta">
+                                <strong>MedoHar Sip</strong>
+                                <small>Container 2 &bull; Metabolism &amp; Immunity</small>
+                            </span>
+                            <span class="sip-go">&rarr;</span>
+                        </button>
                     </div>
-                </button>
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- SCREEN 2: KASHAYA SELECTION (JUST KASHAYA A, B, AND C)            -->
-        <!-- ================================================================= -->
-        <section id="screen-kashaya-menu" class="screen">
-            <div class="screen-header text-center">
-                <h2>Select Your Kashaya</h2>
-                <p>Tap your choice below to dispense immediately:</p>
-            </div>
-
-            <div class="kashaya-clean-grid">
-                <!-- KASHAYA A -->
-                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya A', 'Classical Kashaya Formulation A', 'Decocting and dispensing Kashaya A.')">
-                    <span class="kashaya-badge">Cartridge 1</span>
-                    <span class="kashaya-big-icon">🍵</span>
-                    <h3>Kashaya A</h3>
-                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
-                </button>
-
-                <!-- KASHAYA B -->
-                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya B', 'Classical Kashaya Formulation B', 'Decocting and dispensing Kashaya B.')">
-                    <span class="kashaya-badge">Cartridge 2</span>
-                    <span class="kashaya-big-icon">🍵</span>
-                    <h3>Kashaya B</h3>
-                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
-                </button>
-
-                <!-- KASHAYA C -->
-                <button type="button" class="kashaya-btn-card" onclick="startDirectDispense('Kashaya C', 'Classical Kashaya Formulation C', 'Decocting and dispensing Kashaya C.')">
-                    <span class="kashaya-badge">Cartridge 3</span>
-                    <span class="kashaya-big-icon">🍵</span>
-                    <h3>Kashaya C</h3>
-                    <span class="kashaya-btn-action">Tap to Dispense &rarr;</span>
-                </button>
-            </div>
-
-            <div class="screen-footer">
-                <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-welcome')">&larr; Back to Home</button>
-                <div></div>
+                </div>
             </div>
         </section>
 

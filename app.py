@@ -231,16 +231,10 @@ DISPENSE_HISTORY = []
 JOB_COUNTER = 0
 
 TEA_TO_CONTAINER_MAP = {
-    "Tea A": 1,        # Lemongrass Sip / Container 1
-    "Tea B": 2,        # Vital Sip / Container 2
-    "Tea C": 3,        # MedoHar Sip / Container 3
-    "Tea D": 4,        # Mangalayu Tea / Container 4
-    "Tea E": 1,        # Moringa Sip / Container 1 (or 5 if equipped)
-    "Tea F": 2,        # Green Sip / Container 2 (or 6 if equipped)
-    "Regular Tea": 4,  # Standard Instant Tea / Container 4
-    "Kashaya A": 1,
-    "Kashaya B": 2,
-    "Kashaya C": 3,
+    "Tea A": 1,          # Lemongrass Sip -> Motor Driver 1, Motor 1 (Container 1)
+    "Lemongrass Sip": 1,
+    "Tea C": 2,          # MedoHar Sip -> Motor Driver 1, Motor 2 (Container 2)
+    "MedoHar Sip": 2,
 }
 
 @app.route("/api/dispense", methods=["POST"])
