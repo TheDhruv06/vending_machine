@@ -41,27 +41,23 @@ ESP32 Dev Board                     L298N Motor Driver 2 (2 Water Pumps)
 
 ---
 
-## 📱 How to Control Directly from Your Phone (No Internet or App Needed!)
+## 📱 How to Control from Your Phone via Bluetooth ("Serial Bluetooth Terminal")
 
 File: [`1_standalone_motor_test/1_standalone_motor_test.ino`](1_standalone_motor_test/1_standalone_motor_test.ino)
 
-1. Upload `esp32/1_standalone_motor_test/1_standalone_motor_test.ino` to your ESP32 via Arduino IDE.
-2. Power the ESP32 (from a power bank, phone charger, or laptop).
-3. On your **Android or iPhone**, open WiFi Settings and connect to:
-   - **WiFi Network:** `SoilVeda_Dispenser`
-   - **Password:** `12345678`
-4. Open Chrome or Safari on your phone and visit: **`http://192.168.4.1`**
-5. Use the touch dropdowns (**Driver 1/2, Motor 1/2, Seconds**) OR type `"MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC"` directly into the Text Command Console!
-
----
-
-## 💻 How to Control via USB Serial Monitor
-
-1. Open **Serial Monitor** in Arduino IDE at **115200 baud** (line ending: `Newline` or `Both NL & CR`).
-2. Type commands directly in natural language or short numbers:
+1. Upload `esp32/1_standalone_motor_test/1_standalone_motor_test.ino` to your ESP32 via Arduino IDE (Board: **ESP32 Dev Module**).
+2. Power the ESP32 (from a power bank, USB charger, or laptop).
+3. On your Android phone, open **Bluetooth Settings** and pair with **`SoilVeda_ESP32`**.
+4. Open the **Serial Bluetooth Terminal** app:
+   - Tap the top-left menu (&equiv;) &rarr; **Devices** &rarr; **Bluetooth Classic** &rarr; Tap **`SoilVeda_ESP32`**.
+5. Once connected, the ESP32 sends the command menu directly to your phone screen!
+6. Type any command in the terminal and press Send:
    - `MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC` &rarr; Spins MedoHar Sip BO Motor for 3 seconds
    - `MOTOR DRIVER 1 MOTOR 1 FOR 2.5 SEC` &rarr; Spins Lemongrass Sip BO Motor for 2.5 seconds
    - `MOTOR DRIVER 2 MOTOR 1 FOR 5 SEC` &rarr; Runs Water Dispense Pump for 5 seconds
    - `D2 M2 4` &rarr; Runs Water Extract Pump for 4 seconds
    - `1 2 3` &rarr; Shortcut for Driver 1, Motor 2, 3 seconds
-   - `S` or `STOP` &rarr; Immediately aborts and stops all motors & pumps!
+   - `S` or `STOP` &rarr; Immediately aborts and stops all motors &amp; pumps!
+   - `MENU` &rarr; Prints the command menu again
+
+*(Note: USB Serial Monitor in Arduino IDE at `115200` baud also works identically at the same time.)*
