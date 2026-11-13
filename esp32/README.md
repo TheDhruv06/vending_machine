@@ -61,3 +61,4 @@ File: [`1_standalone_motor_test/1_standalone_motor_test.ino`](1_standalone_motor
    - `MENU` &rarr; Prints the command menu again
 
 *(Note: USB Serial Monitor in Arduino IDE at `115200` baud also works identically at the same time.)*
+![alt text](image.png)

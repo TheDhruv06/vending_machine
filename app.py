@@ -325,8 +325,9 @@ def dispense_status():
 
 
 if __name__ == "__main__":
-    # Run development server on port 5000
-    print("Starting Soilveda Organics Ayurvedic Vending Machine Simulator...")
-    print("Open http://127.0.0.1:5000 in your web browser.")
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    # Run development/local kiosk server on port 5000
+    print("Starting Soilveda Organics Ayurvedic Vending Machine...")
+    print("Open http://127.0.0.1:5000 or http://<raspberrypi-ip>:5000 in your browser.")
+    debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
 

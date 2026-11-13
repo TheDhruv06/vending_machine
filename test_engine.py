@@ -32,15 +32,15 @@ class TestAyurvedaEngine(unittest.TestCase):
         self.assertTrue(safe)
         self.assertIsNone(reason)
 
-    def test_all_77_combinations_exist_and_resolve(self):
-        """Verify that all 77 documented combinations map cleanly to valid teas."""
+    def test_all_84_combinations_exist_and_resolve(self):
+        """Verify that all 84 documented combinations map cleanly to valid teas."""
         prakritis = ["V", "P", "K", "VP", "PK", "VK", "VPK"]
         all_symptoms = []
         for cat, syms in SYMPTOMS_CATALOG.items():
             all_symptoms.extend(syms)
         
-        self.assertEqual(len(all_symptoms), 11, "Must have exactly 11 symptoms")
-        self.assertEqual(len(RECOMMENDATION_MATRIX), 77, "Must have exactly 77 combinations")
+        self.assertEqual(len(all_symptoms), 12, "Must have exactly 12 symptoms (including No Issue)")
+        self.assertEqual(len(RECOMMENDATION_MATRIX), 84, "Must have exactly 84 combinations")
 
         for prakriti in prakritis:
             for symptom in all_symptoms:

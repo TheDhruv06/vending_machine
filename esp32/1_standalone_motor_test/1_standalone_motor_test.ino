@@ -3,42 +3,6 @@
  * SOILVEDA ORGANICS - AYURVEDIC VENDING MACHINE
  * MODULE: STANDALONE ESP32 MOTOR & PUMP CONTROLLER (BLUETOOTH + USB SERIAL)
  * =====================================================================================
- * Target Board  : ESP32 Dev Module (WROOM-32 / 30-pin / 38-pin with Classic Bluetooth)
- * Motor Driver 1: L298N #1 -> Controls 2 BO Motors (Powder Containers)
- *   - Motor 1 (IN1/IN2): Container 1 -> Lemongrass Sip BO Motor
- *   - Motor 2 (IN3/IN4): Container 2 -> MedoHar Sip BO Motor
- * Motor Driver 2: L298N #2 -> Controls 2 Water Pumps
- *   - Motor 1 (IN1/IN2): Water Pump 1 -> Water Dispense Pump
- *   - Motor 2 (IN3/IN4): Water Pump 2 -> Water Extract Pump
- *
- * HOW TO CONTROL VIA PHONE ("Serial Bluetooth Terminal" App):
- * 1. Upload this code to your ESP32.
- * 2. On your Android phone, open Bluetooth Settings -> Pair with "SoilVeda_ESP32".
- * 3. Open the "Serial Bluetooth Terminal" app -> Devices -> Bluetooth Classic -> Connect "SoilVeda_ESP32".
- * 4. Type any command and press Send:
- *      - "MOTOR DRIVER 1 MOTOR 2 FOR 3 SEC"  -> Runs Driver 1, Motor 2 for 3 seconds
- *      - "D1 M1 2.5"                         -> Runs Driver 1, Motor 1 for 2.5 seconds
- *      - "1 2 3"                             -> Runs Driver 1, Motor 2 for 3 seconds
- *      - "MOTOR DRIVER 2 MOTOR 1 FOR 5 SEC"  -> Runs Water Dispense Pump for 5 seconds
- *      - "2 2 4"                             -> Runs Water Extract Pump for 4 seconds
- *      - "S" or "STOP"                       -> Emergency Stop (works anytime!)
- *      - "MENU" or "HELP"                    -> Shows the menu on your phone screen
- *
- * HARDWARE WIRING (ESP32 TO BOTH L298N DRIVERS):
- * -------------------------------------------------------------------------------------
- *  ESP32 Pin  -> Driver Pin          -> Hardware Function
- *  GPIO 18    -> Driver 1 IN1        -> Driver 1, Motor 1 (Lemongrass Sip BO Motor)
- *  GPIO 19    -> Driver 1 IN2        -> Driver 1, Motor 1
- *  GPIO 21    -> Driver 1 IN3        -> Driver 1, Motor 2 (MedoHar Sip BO Motor)
- *  GPIO 22    -> Driver 1 IN4        -> Driver 1, Motor 2
- *
- *  GPIO 23    -> Driver 2 IN1        -> Driver 2, Motor 1 (Water Dispense Pump)
- *  GPIO 25    -> Driver 2 IN2        -> Driver 2, Motor 1
- *  GPIO 26    -> Driver 2 IN3        -> Driver 2, Motor 2 (Water Extract Pump)
- *  GPIO 27    -> Driver 2 IN4        -> Driver 2, Motor 2
- *
- *  GND        -> Driver 1 & 2 GND    -> COMMON GROUND WITH EXTERNAL POWER SUPPLY!
- * =====================================================================================
  */
 
 #include <Arduino.h>
@@ -48,16 +12,10 @@
 #error Bluetooth is not enabled! Please select a standard ESP32 board (e.g. ESP32 Dev Module).
 #endif
 
-// =====================================================================================
-// 1. BLUETOOTH CONFIGURATION
-// =====================================================================================
 const char* BT_DEVICE_NAME = "SoilVeda_ESP32";
 BluetoothSerial SerialBT;
 volatile bool btJustConnected = false;
 
-// =====================================================================================
-// 2. PIN DEFINITIONS (MATCHING L298N SILKSCREEN LABELS: IN1, IN2, IN3, IN4)
-// =====================================================================================
 // MOTOR DRIVER 1 (L298N #1): BO MOTORS (TEA CONTAINERS)
 #define MD1_IN1 18   // Motor 1 (Lemongrass Sip) -> L298N #1 IN1
 #define MD1_IN2 19   // Motor 1 (Lemongrass Sip) -> L298N #1 IN2
@@ -70,7 +28,6 @@ volatile bool btJustConnected = false;
 #define MD2_IN3 26   // Pump 2 (Water Extract)   -> L298N #2 IN3
 #define MD2_IN4 27   // Pump 2 (Water Extract)   -> L298N #2 IN4
 
-// Onboard status LED (GPIO 2 on most ESP32 boards)
 #define STATUS_LED 2
 
 struct ActuatorChannel {
@@ -89,10 +46,6 @@ const ActuatorChannel channels[4] = {
   {2, 2, MD2_IN3, MD2_IN4, "Driver 2 - Motor 2", "Water Pump 2 (Water Extract Pump)"}
 };
 
-// =====================================================================================
-// 3. DUAL OUTPUT HELPER (SENDS TO BOTH BLUETOOTH PHONE APP & USB SERIAL)
-// =====================================================================================
-
 void logPrint(const String& msg) {
   Serial.print(msg);
   if (SerialBT.hasClient()) {
@@ -106,10 +59,6 @@ void logPrintln(const String& msg) {
     SerialBT.println(msg);
   }
 }
-
-// =====================================================================================
-// 4. HARDWARE INITIALIZATION & MOTOR CONTROL
-// =====================================================================================
 
 void initHardware() {
   pinMode(STATUS_LED, OUTPUT);
@@ -167,14 +116,12 @@ void runMotorForDuration(int driverId, int motorId, unsigned long durationMs) {
   while (millis() - startTime < durationMs) {
     unsigned long elapsed = millis() - startTime;
 
-    // Print live countdown once every 1000ms
     if (elapsed - lastPrintTime >= 1000 || lastPrintTime == 0) {
       lastPrintTime = elapsed;
       float remainingSec = (durationMs - elapsed) / 1000.0;
       logPrintln("   Running... " + String(remainingSec, 1) + " sec left");
     }
 
-    // Check Bluetooth phone app for emergency stop
     if (SerialBT.available() > 0) {
       String abortCmd = SerialBT.readStringUntil('\n');
       abortCmd.trim();
@@ -186,7 +133,6 @@ void runMotorForDuration(int driverId, int motorId, unsigned long durationMs) {
       }
     }
 
-    // Check USB Serial for emergency stop
     if (Serial.available() > 0) {
       String abortCmd = Serial.readStringUntil('\n');
       abortCmd.trim();
@@ -201,17 +147,12 @@ void runMotorForDuration(int driverId, int motorId, unsigned long durationMs) {
     delay(10);
   }
 
-  // Turn OFF motor/pump
   digitalWrite(channels[idx].pinIn1, LOW);
   digitalWrite(channels[idx].pinIn2, LOW);
   digitalWrite(STATUS_LED, LOW);
 
   logPrintln(">> [COMPLETE] " + String(channels[idx].name) + " stopped after " + String(durationSec, 2) + " sec.\n");
 }
-
-// =====================================================================================
-// 5. COMMAND MENU & PARSER
-// =====================================================================================
 
 void printMenu() {
   logPrintln("\n==================================================");
@@ -311,10 +252,6 @@ void parseAndExecuteCommand(String rawInput) {
   logPrint("Enter command > ");
 }
 
-// =====================================================================================
-// 6. MAIN SETUP & LOOP
-// =====================================================================================
-
 void btConnectionCallback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
   if (event == ESP_SPP_SRV_OPEN_EVT) {
     btJustConnected = true;
@@ -328,7 +265,6 @@ void setup() {
   delay(1000);
   initHardware();
 
-  // Start Bluetooth Classic SPP
   SerialBT.register_callback(btConnectionCallback);
   SerialBT.begin(BT_DEVICE_NAME);
 
@@ -346,7 +282,6 @@ void setup() {
 }
 
 void loop() {
-  // Send welcome menu cleanly from main loop when phone connects
   if (btJustConnected) {
     btJustConnected = false;
     delay(200);
@@ -354,13 +289,11 @@ void loop() {
     printMenu();
   }
 
-  // 1. Check for commands from Phone (Serial Bluetooth Terminal)
   if (SerialBT.available() > 0) {
     String btInput = SerialBT.readStringUntil('\n');
     parseAndExecuteCommand(btInput);
   }
 
-  // 2. Check for commands from Laptop (USB Serial Monitor)
   if (Serial.available() > 0) {
     String usbInput = Serial.readStringUntil('\n');
     parseAndExecuteCommand(usbInput);

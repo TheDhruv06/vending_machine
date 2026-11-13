@@ -1,0 +1,15 @@
+[Unit]
+Description=SoilVeda Organics Herbal Vending Machine Backend
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/vending_machine
+ExecStart=/home/pi/vending_machine/venv/bin/python3 /home/pi/vending_machine/app.py
+Restart=always
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
